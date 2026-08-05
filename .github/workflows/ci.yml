@@ -1,0 +1,187 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.5.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Run tests with coverage
+        run: pnpm test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/coverage-final.json
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  # Runs the test suite against the older React majors the package claims to support.
+  # React 19 is covered by the quality job via the default devDependencies.
+  compat:
+    runs-on: ubuntu-latest
+    needs: quality
+
+    strategy:
+      fail-fast: false
+      matrix:
+        react-version: ['17', '18']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.5.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install React ${{ matrix.react-version }}
+        # @testing-library/react 13+ requires React 18, so the React 17 leg pins RTL 12. All hook tests use probe components because RTL 12 has no renderHook.
+        run: |
+          if [ "${{ matrix.react-version }}" = "17" ]; then
+            pnpm add -D react@^17 react-dom@^17 @types/react@^17 @types/react-dom@^17 @testing-library/react@^12.1.5
+          else
+            pnpm add -D react@^18 react-dom@^18 @types/react@^18 @types/react-dom@^18
+          fi
+
+      - name: Run tests
+        run: pnpm test
+
+  build:
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.5.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build package
+        run: pnpm build
+
+      - name: Check for build artifacts
+        run: |
+          for f in index.js index.mjs index.d.ts index.d.mts; do
+            if [ ! -f "dist/$f" ]; then
+              echo "Build failed: dist/$f not found"
+              exit 1
+            fi
+          done
+
+      - name: Check the 'use client' banner survived bundling
+        run: |
+          for f in index.js index.mjs; do
+            if ! head -1 "dist/$f" | grep -q 'use client'; then
+              echo "Build failed: dist/$f is missing the 'use client' banner"
+              exit 1
+            fi
+          done
+
+      - name: Verify dual-package types (arethetypeswrong)
+        run: pnpm dlx @arethetypeswrong/cli --pack .
+
+      - name: Check bundle size budgets (size-limit)
+        run: pnpm size
+
+  # Real-browser E2E across the device matrix, against both example apps (CSR + SSR).
+  e2e:
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.5.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build package (examples/nextjs links against dist)
+        run: pnpm build
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium webkit
+
+      - name: Run E2E tests
+        run: pnpm exec playwright test
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

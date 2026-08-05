@@ -1,0 +1,82 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Commands
+
+```bash
+pnpm build          # Build library to dist/ (CJS + ESM + .d.ts + .d.mts)
+pnpm test           # Run unit tests once (vitest + jsdom)
+pnpm test:watch     # Run tests in watch mode
+pnpm test:coverage  # Generate coverage report
+pnpm size           # Verify bundle-size budgets (size-limit; requires a prior build)
+pnpm e2e            # Playwright device-matrix E2E (builds + starts both example apps)
+pnpm format         # Format with Prettier
+pnpm format:check   # Verify formatting without writing (used in CI)
+pnpm lint           # ESLint (flat config, includes react-hooks rules)
+pnpm typecheck      # tsc --noEmit
+pnpm example        # Run the CSR example (Vite, :3001)
+pnpm example:next   # Run the SSR example (Next.js, :3002)
+
+# Run a specific test by name pattern
+pnpm vitest run -t "test name pattern"
+```
+
+## Architecture
+
+**react-device-check** detects the device type (mobile/tablet/desktop) and OS from user-agent signals. It is a hooks library with a pure, framework-free detection engine underneath.
+
+### Core flow
+
+1. `src/types.ts` — all public types (`DeviceType`, `OS`, `DeviceInfo`, `DetectionInput`, …)
+2. `src/core/detect.ts` — `detectDevice(input, options)`: the pure decision-tree engine. Tier 1 trusts Chromium Client Hints (`uaData.mobile`/`platform`); Tier 2 parses the UA string cross-checked with `maxTouchPoints` (iPad-as-Mac unmasking). Deterministic: same input → same output; no globals.
+3. `src/core/env.ts` — `isServer` + `getNavigatorInput()`: the only place globals are read. Gated on `window` because Node 21+ ships a global `navigator` that would misreport the server's OS.
+4. `src/core/static.ts` — session cache of the static info + the frozen `SERVER_STATIC` default (`desktop`/`unknown`).
+5. `src/core/store.ts` — the reactive store for `useDevice()`: lazily attaches two `matchMedia` listeners (`(pointer: coarse)`, `(orientation: portrait)`) with the first subscriber, caches the snapshot object so its reference only changes when a reactive field changes (useSyncExternalStore requirement).
+6. `src/compat.ts` — `useSES`: native `useSyncExternalStore` when available, otherwise a ~20-line React 17 fallback. Uses namespace property access (not a named import) so React 17 doesn't throw.
+7. `src/useDevice.ts` / `src/useDeviceType.ts` / `src/useOS.ts` — thin hook wrappers. Static hooks import only `core/static`, so importing them alone tree-shakes the reactive store away (verified by the size-limit budgets).
+
+### Invariants to preserve
+
+- **No module-top-level access to `window`/`navigator`** — all detection is lazy. This is the SSR-safety foundation.
+- **Snapshot references must be stable** — `getServerSnapshot` returns a frozen module constant; the client snapshot is cached and only replaced when a reactive field changes. Fresh objects per call make React loop infinitely.
+- **Branch order in `detect.ts` matters**: iPhone before Mac (`like Mac OS X`), Android before Windows/Linux (`Linux; Android`), the generic `/Mobi/` catch-all before Windows/Linux (Windows Phone/Tizen/Sailfish carry desktop OS tokens plus a mobile marker), TV markers before the Android tablet verdict, Tier 1 before Tier 2 (safe because iOS browsers never expose `userAgentData`). Case-sensitive regexes keep jsdom's lowercase `(darwin)` out.
+- **`maxTouchPoints` is consulted ONLY in the Apple-masquerade branch** — touch laptops/Surface must stay `desktop`.
+- **`type`/`os` are static per session by contract**; only `isTouchPrimary`/`orientation` are reactive.
+
+### SSR contract
+
+Server render and hydration first paint both return the frozen default (`desktop`/`unknown`, `isHydrated: false`) so server and client HTML always match; the hook corrects itself in one post-hydration render. The dist bundle carries a `'use client'` banner (added in `vite.config.ts`).
+
+### Testing
+
+- `src/test/fixtures.ts` — 48 real-world UA fixtures; `detect.test.ts` runs the matrix via pure injection (no global mocks). Update the fixture counts in both READMEs and this file when adding fixtures.
+- `src/test/helpers.ts` (`vi.stubGlobal` navigator stub) + `matchMediaMock.ts` (controllable harness) for store/hook tests; `setup.ts` resets the session caches and unstubs globals after each test.
+- Hook tests use **probe components, not renderHook** — the React 17 CI leg pins RTL 12 which has no renderHook.
+- `ssr.test.tsx` runs with `// @vitest-environment node` to exercise the real no-DOM path.
+- `e2e/device-detection.spec.ts` — Playwright matrix (iPhone 15, iPad Pro 11, Galaxy S24, Galaxy Tab S9 with `isMobile: false` to reproduce real tablet Client Hints, desktop Chrome/Safari) against both examples. The SSR test asserts the raw server HTML and zero hydration console errors.
+
+### Adding a detection rule
+
+1. Add the branch to `src/core/detect.ts` (mind the branch-order invariants above)
+2. Add fixture(s) to `src/test/fixtures.ts` with real UA strings
+3. Update the known-limitations section in `README.md` **and** `README.ko.md` if behavior is a documented trade-off
+
+### Code style
+
+Write all code comments in English — this overrides the global "Korean comments" rule. The library is published to npm for an international audience. User-facing documentation keeps a Korean translation (`README.ko.md`).
+
+### Build output
+
+Vite library mode produces `dist/index.js` (CJS), `dist/index.mjs` (ESM), `dist/index.d.ts` (rolled-up declarations), and `dist/index.d.mts` (copied by the build script). Both JS bundles start with a `'use client'` banner. Dual-package resolution is verified with `pnpm dlx @arethetypeswrong/cli --pack .`.
+
+React is the only external (peer dependency). Bundle budgets: everything ≤ 2 kB, `{ useIsMobile }` ≤ 1.15 kB, `{ useDevice }` ≤ 1.5 kB, `{ detectDevice }` ≤ 0.9 kB (min+brotli, enforced by `pnpm size`). If a budget changes, keep the size claims in both READMEs in sync.
+
+### Examples
+
+- `examples/basic` — Vite CSR app importing the library source (`../../src`) directly.
+- `examples/nextjs` — Next.js 15 App Router app consuming the **built package** via `"react-device-check": "link:../.."` — run `pnpm build` at the root before starting it.
+
+### Package manager
+
+This project uses `pnpm` and Node 20.x (see `.nvmrc`). Use `pnpm` for all install/run commands.
