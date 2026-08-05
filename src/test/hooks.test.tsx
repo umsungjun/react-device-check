@@ -188,7 +188,11 @@ describe('hooks', () => {
       async () => {
         stubNavigatorFromFixture(IPHONE);
         const { renderToString } = await import('react-dom/server');
-        const { hydrateRoot } = await import('react-dom/client');
+        // Vite's import analysis resolves literal dynamic imports at transform time (even with @vite-ignore), which crashes suite loading on React 17 where react-dom/client does not exist. A variable specifier is opaque to the analyzer, deferring resolution to runtime — after skipIf has excluded this test on React 17.
+        const clientSpecifier = 'react-dom/client';
+        const { hydrateRoot } = (await import(
+          /* @vite-ignore */ clientSpecifier
+        )) as typeof import('react-dom/client');
 
         // The server render uses getServerSnapshot: desktop/unknown defaults. renderToString HTML-escapes quotes, hence the decode.
         const html = renderToString(<DeviceProbe />);
