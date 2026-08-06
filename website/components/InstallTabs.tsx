@@ -18,8 +18,13 @@ export default function InstallTabs({ strings }: InstallTabsProps) {
   }, [copied]);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(INSTALL_COMMANDS[active].command);
-    setCopied(true);
+    try {
+      // Clipboard API is absent in insecure contexts and can reject on permissions
+      await navigator.clipboard.writeText(INSTALL_COMMANDS[active].command);
+      setCopied(true);
+    } catch {
+      // Copy silently failed — keep the hint label so the UI never claims success
+    }
   };
 
   return (

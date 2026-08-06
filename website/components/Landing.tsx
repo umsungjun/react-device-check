@@ -50,10 +50,10 @@ export default function Landing({ locale, strings: s }: LandingProps) {
             react-device-check
           </a>
           <nav className="header-nav" aria-label="Site">
-            <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+            <a href={GITHUB_URL} target="_blank" rel="noreferrer noopener">
               GitHub
             </a>
-            <a href={NPM_URL} target="_blank" rel="noreferrer">
+            <a href={NPM_URL} target="_blank" rel="noreferrer noopener">
               npm
             </a>
             {/* Plain anchor: crossing root layouts is a full page load by design */}
@@ -92,7 +92,7 @@ export default function Landing({ locale, strings: s }: LandingProps) {
               href={GITHUB_URL}
               className="btn btn-ghost"
               target="_blank"
-              rel="noreferrer"
+              rel="noreferrer noopener"
             >
               {s.hero.ctaGithub}
             </a>
@@ -200,7 +200,7 @@ export default function Landing({ locale, strings: s }: LandingProps) {
           </div>
           <p className="api-docs-link">
             {s.api.docsLead}{' '}
-            <a href={readmeUrl} target="_blank" rel="noreferrer">
+            <a href={readmeUrl} target="_blank" rel="noreferrer noopener">
               {s.api.docsLinkText}
             </a>
             .
@@ -212,10 +212,10 @@ export default function Landing({ locale, strings: s }: LandingProps) {
         <div className="container footer-inner">
           <span>{s.footer.tagline}</span>
           <nav className="footer-links" aria-label="Footer">
-            <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+            <a href={GITHUB_URL} target="_blank" rel="noreferrer noopener">
               GitHub
             </a>
-            <a href={NPM_URL} target="_blank" rel="noreferrer">
+            <a href={NPM_URL} target="_blank" rel="noreferrer noopener">
               npm
             </a>
             <a

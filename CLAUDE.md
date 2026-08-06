@@ -80,7 +80,7 @@ React is the only external (peer dependency). Bundle budgets: everything ≤ 2 k
 
 ### Website
 
-`website/` is a standalone Next.js 15 promo/landing site (own lockfile, not a workspace member) consuming the **published npm package** — unlike both examples, it needs no root build. English at `/`, Korean at `/ko` via two route-group root layouts (each sets its own `<html lang>`); hreflang/canonical/OG metadata come from `website/lib/seo.ts` (`SITE_URL` is the single deploy-URL definition). The OG image is served by `app/og/route.tsx` (a plain route handler — the `opengraph-image` file convention does not inject meta tags across route-group root layouts). Deployed on Vercel with Root Directory = `website`; excluded from CI, lint, size-limit, and the Playwright E2E matrix. The examples' ports and `data-testid` contracts are untouched by it.
+`website/` is a standalone Next.js 15 promo/landing site (own lockfile, not a workspace member) consuming the **published npm package** — unlike both examples, it needs no root build. English at `/`, Korean at `/ko` via two route-group root layouts (each sets its own `<html lang>`); hreflang/canonical/OG metadata come from `website/lib/seo.ts` (`SITE_URL` is the single deploy-URL definition). The OG image is the static `website/public/og.png`, referenced explicitly in `lib/seo.ts` (the `opengraph-image` file convention does not inject meta tags across route-group root layouts). Deployed on Vercel with Root Directory = `website`; excluded from CI, lint, size-limit, and the Playwright E2E matrix. The examples' ports and `data-testid` contracts are untouched by it.
 
 ### Package manager
 
