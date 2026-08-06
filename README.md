@@ -5,6 +5,8 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
+**Website / live demo**: [react-device-check-site.vercel.app](https://react-device-check-site.vercel.app)
+
 **Lightweight, accurate, SSR-safe React hooks for device detection.** Know whether your user is on a phone, tablet, or desktop — and which OS — with zero dependencies, ~1.5 kB (min+brotli) for everything, and no hydration errors in Next.js.
 
 Detecting devices in 2026 is harder than it looks: iPads masquerade as Macs, Chrome froze its User-Agent string (every Android model reports `K`), Samsung DeX sends a desktop Linux UA from a phone, and iOS 26 froze its OS version token forever. `react-device-check` fuses the signals that still work — User-Agent Client Hints, the UA string, and `maxTouchPoints` cross-checks — into a small deterministic decision tree instead of a regex database.
@@ -88,16 +90,16 @@ function DownloadButton() {
 
 Returns the full device snapshot and subscribes to reactive changes.
 
-| Field            | Type                                    | Lifetime | Description                                                              |
-| ---------------- | --------------------------------------- | -------- | ------------------------------------------------------------------------ |
-| `type`           | `'mobile' \| 'tablet' \| 'desktop'`     | static   | Device class                                                             |
-| `os`             | `'ios' \| 'android' \| 'windows' \| 'macos' \| 'linux' \| 'unknown'` | static | OS family                        |
-| `isMobile`       | `boolean`                               | static   | Sugar for `type === 'mobile'`                                            |
-| `isTablet`       | `boolean`                               | static   | Sugar for `type === 'tablet'`                                            |
-| `isDesktop`      | `boolean`                               | static   | Sugar for `type === 'desktop'`                                           |
-| `isTouchPrimary` | `boolean`                               | reactive | `(pointer: coarse)` — flips live when a mouse is attached (DeX, iPad)    |
-| `orientation`    | `'portrait' \| 'landscape'`             | reactive | Viewport orientation, updates on rotation                                |
-| `isHydrated`     | `boolean`                               | —        | `false` on the server and hydration first paint, `true` right after      |
+| Field            | Type                                                                 | Lifetime | Description                                                           |
+| ---------------- | -------------------------------------------------------------------- | -------- | --------------------------------------------------------------------- |
+| `type`           | `'mobile' \| 'tablet' \| 'desktop'`                                  | static   | Device class                                                          |
+| `os`             | `'ios' \| 'android' \| 'windows' \| 'macos' \| 'linux' \| 'unknown'` | static   | OS family                                                             |
+| `isMobile`       | `boolean`                                                            | static   | Sugar for `type === 'mobile'`                                         |
+| `isTablet`       | `boolean`                                                            | static   | Sugar for `type === 'tablet'`                                         |
+| `isDesktop`      | `boolean`                                                            | static   | Sugar for `type === 'desktop'`                                        |
+| `isTouchPrimary` | `boolean`                                                            | reactive | `(pointer: coarse)` — flips live when a mouse is attached (DeX, iPad) |
+| `orientation`    | `'portrait' \| 'landscape'`                                          | reactive | Viewport orientation, updates on rotation                             |
+| `isHydrated`     | `boolean`                                                            | —        | `false` on the server and hydration first paint, `true` right after   |
 
 > **Note:** `type` and `os` are intentionally static per session. User-agent facts cannot change without a page load, and keeping them stable prevents UI flapping. Use the reactive fields (or CSS) for anything viewport-dependent.
 
@@ -127,13 +129,13 @@ const { type, os } = detectDevice({ ua: req.headers['user-agent'] });
 detectDevice(undefined, { fallback: { type: 'mobile' } });
 ```
 
-| `DetectionInput` field | Read from (client)          |
-| ---------------------- | --------------------------- |
-| `ua`                   | `navigator.userAgent`       |
-| `uaData`               | `navigator.userAgentData`   |
-| `maxTouchPoints`       | `navigator.maxTouchPoints`  |
-| `platform`             | `navigator.platform`        |
-| `screen`               | `screen.width` / `height`   |
+| `DetectionInput` field | Read from (client)         |
+| ---------------------- | -------------------------- |
+| `ua`                   | `navigator.userAgent`      |
+| `uaData`               | `navigator.userAgentData`  |
+| `maxTouchPoints`       | `navigator.maxTouchPoints` |
+| `platform`             | `navigator.platform`       |
+| `screen`               | `screen.width` / `height`  |
 
 ### `getNavigatorInput(): DetectionInput | undefined`
 

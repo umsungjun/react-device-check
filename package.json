@@ -44,6 +44,7 @@
     "typecheck": "tsc --noEmit && tsc -p tsconfig.tools.json",
     "example": "cd examples/basic && pnpm install && pnpm dev",
     "example:next": "cd examples/nextjs && pnpm install && pnpm dev",
+    "website": "cd website && pnpm install && pnpm dev",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
