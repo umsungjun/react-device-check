@@ -7,7 +7,7 @@
 
 **Website / live demo**: [react-device-check-site.vercel.app](https://react-device-check-site.vercel.app)
 
-**Lightweight, accurate, SSR-safe React hooks for device detection.** Know whether your user is on a phone, tablet, or desktop — and which OS — with zero dependencies, ~1.5 kB (min+brotli) for everything, and no hydration errors in Next.js.
+**Lightweight, accurate React hooks for device detection — in any React app, CSR or SSR.** Know whether your user is on a phone, tablet, or desktop — and which OS — with zero dependencies, ~1.5 kB (min+brotli) for everything, and no hydration errors in Next.js.
 
 Detecting devices in 2026 is harder than it looks: iPads masquerade as Macs, Chrome froze its User-Agent string (every Android model reports `K`), Samsung DeX sends a desktop Linux UA from a phone, and iOS 26 froze its OS version token forever. `react-device-check` fuses the signals that still work — User-Agent Client Hints, the UA string, and `maxTouchPoints` cross-checks — into a small deterministic decision tree instead of a regex database.
 

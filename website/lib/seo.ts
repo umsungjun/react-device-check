@@ -7,13 +7,13 @@ export const GITHUB_URL = 'https://github.com/umsungjun/react-device-check';
 export const NPM_URL = 'https://www.npmjs.com/package/react-device-check';
 
 const TITLES: Record<Locale, string> = {
-  en: 'react-device-check — SSR-safe React device detection hooks',
-  ko: 'react-device-check — SSR-safe React 기기 판별 훅',
+  en: 'react-device-check — React device detection hooks for CSR & SSR',
+  ko: 'react-device-check — CSR·SSR 모두를 위한 React 기기 판별 훅',
 };
 
 const DESCRIPTIONS: Record<Locale, string> = {
-  en: 'Detect mobile, tablet, or desktop and the OS in React with zero dependencies, ~1.5 kB, and no hydration errors in Next.js. iPad-as-Mac unmasking, Client Hints first, React 17–19.',
-  ko: '의존성 0개, ~1.5 kB, Next.js hydration 에러 없이 React에서 모바일·태블릿·데스크톱과 OS를 판별하세요. iPad 위장 해제, Client Hints 우선, React 17–19 지원.',
+  en: 'Detect mobile, tablet, or desktop and the OS in any React app with zero dependencies, ~1.5 kB, and no hydration errors in Next.js. iPad-as-Mac unmasking, Client Hints first, React 17–19.',
+  ko: '의존성 0개, ~1.5 kB, Next.js hydration 에러 없이 어떤 React 앱에서든 모바일·태블릿·데스크톱과 OS를 판별하세요. iPad 위장 해제, Client Hints 우선, React 17–19 지원.',
 };
 
 const PATHS: Record<Locale, string> = { en: '/', ko: '/ko' };

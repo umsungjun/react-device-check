@@ -7,7 +7,7 @@
 
 **웹사이트 / 라이브 데모**: [react-device-check-site.vercel.app/ko](https://react-device-check-site.vercel.app/ko)
 
-**경량 · 정확 · SSR-safe React 기기 판별 훅.** 사용자가 폰인지 태블릿인지 데스크톱인지, 어떤 OS인지를 의존성 0개, 전체 ~1.5 kB(min+brotli)로 판별합니다. Next.js에서 hydration 에러가 발생하지 않습니다.
+**경량 · 정확한 React 기기 판별 훅 — CSR SPA부터 Next.js SSR까지 어떤 React 앱에서든.** 사용자가 폰인지 태블릿인지 데스크톱인지, 어떤 OS인지를 의존성 0개, 전체 ~1.5 kB(min+brotli)로 판별합니다. Next.js에서 hydration 에러가 발생하지 않습니다.
 
 2026년의 기기 판별은 보기보다 어렵습니다. iPad는 자신을 Mac이라고 위장하고, Chrome은 User-Agent 문자열을 동결했으며(모든 안드로이드 모델명이 `K`로 보고됨), Samsung DeX는 폰에서 데스크톱 리눅스 UA를 보내고, iOS 26은 OS 버전 토큰을 영구 동결했습니다. `react-device-check`는 여전히 동작하는 신호들 — User-Agent Client Hints, UA 문자열, `maxTouchPoints` 교차검증 — 을 정규식 데이터베이스가 아닌 작고 결정론적인 판별 트리로 융합합니다.
 
