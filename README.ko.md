@@ -5,6 +5,8 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
+**웹사이트 / 라이브 데모**: [react-device-check-site.vercel.app/ko](https://react-device-check-site.vercel.app/ko)
+
 **경량 · 정확 · SSR-safe React 기기 판별 훅.** 사용자가 폰인지 태블릿인지 데스크톱인지, 어떤 OS인지를 의존성 0개, 전체 ~1.5 kB(min+brotli)로 판별합니다. Next.js에서 hydration 에러가 발생하지 않습니다.
 
 2026년의 기기 판별은 보기보다 어렵습니다. iPad는 자신을 Mac이라고 위장하고, Chrome은 User-Agent 문자열을 동결했으며(모든 안드로이드 모델명이 `K`로 보고됨), Samsung DeX는 폰에서 데스크톱 리눅스 UA를 보내고, iOS 26은 OS 버전 토큰을 영구 동결했습니다. `react-device-check`는 여전히 동작하는 신호들 — User-Agent Client Hints, UA 문자열, `maxTouchPoints` 교차검증 — 을 정규식 데이터베이스가 아닌 작고 결정론적인 판별 트리로 융합합니다.
@@ -88,16 +90,16 @@ function DownloadButton() {
 
 전체 기기 스냅샷을 반환하고 반응형 변경을 구독합니다.
 
-| 필드             | 타입                                    | 수명     | 설명                                                                     |
-| ---------------- | --------------------------------------- | -------- | ------------------------------------------------------------------------ |
-| `type`           | `'mobile' \| 'tablet' \| 'desktop'`     | 정적     | 기기 클래스                                                              |
-| `os`             | `'ios' \| 'android' \| 'windows' \| 'macos' \| 'linux' \| 'unknown'` | 정적 | OS 계열                          |
-| `isMobile`       | `boolean`                               | 정적     | `type === 'mobile'` 축약                                                 |
-| `isTablet`       | `boolean`                               | 정적     | `type === 'tablet'` 축약                                                 |
-| `isDesktop`      | `boolean`                               | 정적     | `type === 'desktop'` 축약                                                |
-| `isTouchPrimary` | `boolean`                               | 반응형   | `(pointer: coarse)` — 마우스 연결 시(DeX, iPad) 실시간 전환              |
-| `orientation`    | `'portrait' \| 'landscape'`             | 반응형   | 뷰포트 방향, 회전 시 갱신                                                |
-| `isHydrated`     | `boolean`                               | —        | 서버·hydration 첫 페인트에서 `false`, 직후 `true`                        |
+| 필드             | 타입                                                                 | 수명   | 설명                                                        |
+| ---------------- | -------------------------------------------------------------------- | ------ | ----------------------------------------------------------- |
+| `type`           | `'mobile' \| 'tablet' \| 'desktop'`                                  | 정적   | 기기 클래스                                                 |
+| `os`             | `'ios' \| 'android' \| 'windows' \| 'macos' \| 'linux' \| 'unknown'` | 정적   | OS 계열                                                     |
+| `isMobile`       | `boolean`                                                            | 정적   | `type === 'mobile'` 축약                                    |
+| `isTablet`       | `boolean`                                                            | 정적   | `type === 'tablet'` 축약                                    |
+| `isDesktop`      | `boolean`                                                            | 정적   | `type === 'desktop'` 축약                                   |
+| `isTouchPrimary` | `boolean`                                                            | 반응형 | `(pointer: coarse)` — 마우스 연결 시(DeX, iPad) 실시간 전환 |
+| `orientation`    | `'portrait' \| 'landscape'`                                          | 반응형 | 뷰포트 방향, 회전 시 갱신                                   |
+| `isHydrated`     | `boolean`                                                            | —      | 서버·hydration 첫 페인트에서 `false`, 직후 `true`           |
 
 > **참고:** `type`과 `os`는 의도적으로 세션당 고정입니다. UA 사실은 페이지 리로드 없이 변하지 않으며, 고정 유지가 UI 흔들림을 방지합니다. 뷰포트 의존적인 것은 반응형 필드(또는 CSS)를 사용하세요.
 
@@ -127,13 +129,13 @@ const { type, os } = detectDevice({ ua: req.headers['user-agent'] });
 detectDevice(undefined, { fallback: { type: 'mobile' } });
 ```
 
-| `DetectionInput` 필드  | 클라이언트에서 읽는 곳       |
-| ---------------------- | ---------------------------- |
-| `ua`                   | `navigator.userAgent`        |
-| `uaData`               | `navigator.userAgentData`    |
-| `maxTouchPoints`       | `navigator.maxTouchPoints`   |
-| `platform`             | `navigator.platform`         |
-| `screen`               | `screen.width` / `height`    |
+| `DetectionInput` 필드 | 클라이언트에서 읽는 곳     |
+| --------------------- | -------------------------- |
+| `ua`                  | `navigator.userAgent`      |
+| `uaData`              | `navigator.userAgentData`  |
+| `maxTouchPoints`      | `navigator.maxTouchPoints` |
+| `platform`            | `navigator.platform`       |
+| `screen`              | `screen.width` / `height`  |
 
 ### `getNavigatorInput(): DetectionInput | undefined`
 
