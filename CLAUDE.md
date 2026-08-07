@@ -67,6 +67,10 @@ Server render and hydration first paint both return the frozen default (`desktop
 
 Write all code comments in English — this overrides the global "Korean comments" rule. The library is published to npm for an international audience. User-facing documentation keeps a Korean translation (`README.ko.md`).
 
+### Commit messages
+
+Write commit messages in English — subject and body — overriding the global Korean commit-message convention. The repository is public and its history is read by an international audience, same rationale as the code-comment rule above. Keep the rest of the global convention: one sentence per line (no width-driven wrapping), and no `Co-Authored-By` footer.
+
 ### Build output
 
 Vite library mode produces `dist/index.js` (CJS), `dist/index.mjs` (ESM), `dist/index.d.ts` (rolled-up declarations), and `dist/index.d.mts` (copied by the build script). Both JS bundles start with a `'use client'` banner. Dual-package resolution is verified with `pnpm dlx @arethetypeswrong/cli --pack .`.
