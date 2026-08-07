@@ -2,6 +2,7 @@
 
 [![npm version](https://badge.fury.io/js/react-device-check.svg)](https://badge.fury.io/js/react-device-check)
 [![npm downloads](https://img.shields.io/npm/dm/react-device-check.svg)](https://www.npmjs.com/package/react-device-check)
+[![codecov](https://codecov.io/gh/umsungjun/react-device-check/branch/main/graph/badge.svg)](https://codecov.io/gh/umsungjun/react-device-check)
 
 [English](README.md) | [한국어](README.ko.md)
 

@@ -48,12 +48,14 @@ jobs:
         run: pnpm test:coverage
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/coverage-final.json
           flags: unittests
           name: codecov-umbrella
+          # v5 auto-searches the workspace for reports; the explicit `files` path is the only one we want.
+          disable_search: true
           fail_ci_if_error: false
 
   # Runs the test suite against the older React majors the package claims to support.
