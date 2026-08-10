@@ -7,68 +7,68 @@ export const en: LandingStrings = {
   },
   hero: {
     badges: ['~1.5 kB min+brotli', 'Zero dependencies', 'React 17–19', 'MIT'],
-    titlePre: 'Device detection that’s right ',
+    titlePre: "Device detection that's right ",
     titleAccent: 'in CSR and SSR',
     titlePost: '',
     tagline:
-      'In React CSR apps and Next.js SSR alike, know exactly whether your user is on a phone, tablet, or desktop, and which OS. Zero dependencies, iPads unmask themselves, frozen user agents don’t matter, and there is not a single hydration error.',
+      "Know whether your user is on a phone, tablet, or desktop, and which OS they run. It catches the iPad that writes \"Mac\" into its own user agent, and it does not break in Next.js or anywhere else that builds HTML on the server first. No dependencies.",
     ctaDemo: 'See it live',
     ctaGithub: 'GitHub',
   },
   showcase: {
     overline: 'At a glance',
-    title: 'Devices lie. The answers don’t.',
+    title: "Devices lie. The answers don't.",
     intro:
-      'Each screen shows what useDevice() returns on that device — including the ones that lie about themselves.',
+      'These are the devices where trusting the User-Agent string gets you the wrong answer.',
     claimLabel: 'What it claims',
     verdictLabel: 'What the hook returns',
     devices: [
       {
         name: 'iPhone 15',
         caption:
-          'With Safari’s “Request Desktop Website” even an iPhone claims to be a Mac. Multitouch plus the screen-size cross-check still says mobile.',
+          'With Safari\'s "Request Desktop Website" even an iPhone claims to be a Mac. Multitouch plus the screen-size cross-check still says mobile.',
       },
       {
         name: 'Galaxy S24',
         caption:
-          'Chrome froze the UA — every Android reports model “K”. Client Hints still nail it.',
+          'Chrome stripped the model name out of the UA, so every Android just reports "K". Client Hints, which browsers send separately, still answer it.',
       },
       {
         name: 'iPad Pro',
         caption:
-          'Masquerades as a Mac since iPadOS 13. Multitouch unmasking says tablet anyway.',
+          'Has claimed to be a Mac since iPadOS 13. Five touch points give it away as a tablet anyway.',
       },
       {
         name: 'iMac',
         caption:
-          'A real Mac sending the exact same UA as the iPad above. The multitouch cross-check (maxTouchPoints: 0) is what tells them apart.',
+          'A real Mac sending the exact same UA as the iPad above. One fact separates them: maxTouchPoints is 0.',
       },
       {
         name: 'Windows touch laptop',
         caption:
-          'A touchscreen doesn’t fool it — touch is only consulted for the Apple masquerade. Stays desktop.',
+          'A touchscreen does not change the answer. maxTouchPoints is only consulted to catch devices claiming to be Macs, so this stays desktop.',
       },
       {
         name: 'Android TV',
         caption:
-          'An Android UA without the Mobile token would normally land in the tablet bucket, but TV markers are checked first — desktop is the best fit for a 10-foot UI.',
+          'An Android UA without the Mobile token would normally land in the tablet bucket, but TV markers are checked first. Desktop is the closest fit for a screen you drive with a remote from across the room.',
       },
     ],
   },
   demo: {
     overline: 'Live demo',
-    title: 'Watch the SSR contract in action',
+    title: 'What actually happens during SSR',
     intro:
-      'This page is server-rendered by Next.js. The left panel is frozen at the hydration first paint — exactly what the server sent. The right panel is what the hook knows right now.',
+      'This page is HTML that Next.js built on the server. The left panel is exactly what the server sent. The right panel is what the hook knows right now.',
     serverPanel: 'First paint (what the server rendered)',
     serverNote:
-      'Always desktop / unknown, on every device — that is why server HTML and client HTML can never disagree.',
+      'Always desktop / unknown, whatever device you arrive on. Server and browser start from the same value, so they cannot disagree.',
     livePanel: 'Live values',
     liveNote:
-      'Corrected in a single render right after hydration. isTouchPrimary and orientation keep updating live.',
+      'The moment the browser takes over the page, one render fills in the real values. Touch and orientation keep following after that.',
     waitingBadge: 'server default',
     hydratedBadge: 'hydrated',
-    hint: 'Open this page on a phone, or reload with DevTools device emulation: the left panel stays desktop while the right one tells the truth — and the console logs zero hydration errors.',
+    hint: 'Open this page on a phone, or reload with DevTools device emulation. The left panel stays desktop while the right one tells the truth, and the console logs zero hydration errors.',
   },
   install: {
     copyHint: 'Click to copy',
@@ -77,19 +77,19 @@ export const en: LandingStrings = {
   usage: {
     overline: 'Usage',
     title: 'Three ways to use it',
-    body: 'From a one-line boolean to the framework-free engine — each import ships only what it actually needs.',
+    body: 'From a single boolean to running without React at all. You ship only what you import.',
     examples: [
       {
         title: 'Read the full snapshot',
-        body: 'useDevice() returns type, os, boolean sugar, and the live fields. The server render and the hydration first paint always agree by construction, so you never write typeof window guards — branch on isHydrated only when you want to hide the one-render correction.',
+        body: 'One call gives you the device class, the OS, convenience booleans, and the values that change live. Server and browser always agree on the first paint, so you never write typeof window guards. Check isHydrated only when you want to hide the flash as the real values land.',
       },
       {
         title: 'Import only what you ship',
-        body: 'The static hooks are listener-free and maximally tree-shakeable: importing only useIsMobile and useOS drops the reactive store entirely and ships ~1.1 kB. Perfect for OS-specific store buttons.',
+        body: 'Whatever you do not import is dropped at build time. Take only useIsMobile and useOS and the live-watching code disappears entirely, leaving ~1.1 kB. Perfect for OS-specific store buttons.',
       },
       {
         title: 'Use the engine anywhere',
-        body: 'detectDevice() is the pure decision tree behind the hooks — no React, no globals. Inject a UA string (or Client Hints) and get the same deterministic verdict in middleware, on servers, or in tests.',
+        body: 'The function that does the actual detecting is exported on its own. No React, no browser globals. Hand it a UA string and you get the same answer in middleware, on a server, or in a test.',
       },
     ],
   },
@@ -99,34 +99,34 @@ export const en: LandingStrings = {
     items: [
       {
         title: 'Accurate where others fail',
-        body: 'iPads report as tablets even behind the macOS desktop UA (MacIntel + multitouch unmasking). Android tablets follow the official Mobile-token rule; Samsung DeX and in-app WebViews are handled.',
+        body: 'An iPad writing "Mac" into its user agent is still caught as a tablet, because maxTouchPoints is read alongside it. Android tablets follow the rule Google documents, and Samsung DeX and in-app webviews are handled too.',
       },
       {
         title: 'Client Hints first',
-        body: 'Trusts navigator.userAgentData on Chromium — immune to user-agent freezing — and falls back to UA parsing everywhere else.',
+        body: 'On Chromium it reads Client Hints instead of the UA. Stripping the model name does not affect them. Only browsers without Client Hints fall back to parsing the UA string.',
       },
       {
         title: 'SSR-safe by construction',
-        body: 'Server render and hydration first paint always match, so React 18/19 never log a hydration mismatch. The hook corrects itself in one post-hydration render.',
+        body: 'Server and browser use the same value on the first paint, so the two cannot disagree. That is why React 18/19 never log a hydration error here. The real values arrive one render later.',
       },
       {
         title: 'Tiny and tree-shakeable',
-        body: 'Zero runtime dependencies, dual ESM/CJS. Importing only useIsMobile ships ~1.1 kB and drops the reactive store entirely — budgets are enforced in CI.',
+        body: 'No dependencies at all. Importing only useIsMobile ships ~1.1 kB, and the live-watching code never enters the bundle. CI checks these numbers.',
       },
       {
         title: 'Hybrid reactivity',
-        body: 'type and os stay stable for the session, while isTouchPrimary and orientation update live via matchMedia — covering foldables, DeX docking, and iPad Stage Manager.',
+        body: 'Device class and OS stay pinned until the page reloads. Touch and orientation update live, so unfolding a foldable or attaching a keyboard to an iPad still gives the right answer.',
       },
       {
         title: 'Proven in real browsers',
-        body: 'Beyond 76 unit tests, a Playwright matrix — iPhone 15, iPad Pro, Galaxy S24, Galaxy Tab S9, desktop Chrome and Safari — verifies detection and zero hydration errors.',
+        body: 'Beyond 85 unit tests, iPhone 15, iPad Pro, Galaxy S24, Galaxy Tab S9, and desktop Chrome and Safari are driven in real browsers to confirm the verdicts and zero errors.',
       },
     ],
   },
   compare: {
     overline: 'Comparison',
     title: 'What about react-device-detect?',
-    body: 'react-device-detect computes import-time constants from the UA, which crashes or mismatches under SSR, misreports iPads as desktops, never updates, and ships ~13 kB gzip that cannot be tree-shaken. It has been unmaintained since 2023, and its parser dependency moved to AGPL. react-device-check is a maintained MIT replacement designed around today’s platform realities.',
+    body: "react-device-detect computes its values the moment you import it and freezes them. That breaks under server rendering. It calls iPads desktops, never updates, and because unused parts cannot be dropped it always ships ~13 kB. It has been unmaintained since 2023, and its parser dependency moved to AGPL. react-device-check is a maintained MIT replacement designed around how platforms behave today.",
   },
   api: {
     overline: 'API',
@@ -134,15 +134,15 @@ export const en: LandingStrings = {
     rows: [
       {
         name: 'useDevice()',
-        desc: 'Full snapshot: type, os, boolean sugar, live isTouchPrimary / orientation, and isHydrated.',
+        desc: 'Device class, OS, convenience booleans, and the live touch and orientation values in one call.',
       },
       {
         name: 'useDeviceType()',
-        desc: "'mobile' | 'tablet' | 'desktop' — static per session, listener-free.",
+        desc: "'mobile' | 'tablet' | 'desktop'. Static per session, listener-free.",
       },
       {
         name: 'useIsMobile() · useIsTablet() · useIsDesktop()',
-        desc: 'Boolean sugar — maximally tree-shakeable; importing only these drops the reactive store.',
+        desc: 'When one boolean is all you need. Importing only these drops the live-watching code from the bundle.',
       },
       {
         name: 'useOS()',
@@ -150,7 +150,7 @@ export const en: LandingStrings = {
       },
       {
         name: 'detectDevice(input?, options?)',
-        desc: 'The pure engine — no React required, every signal injectable. Great for servers and tests.',
+        desc: 'The detection function without React. Pass the values in yourself, which suits servers and tests.',
       },
     ],
     docsLead: 'Full API reference and known limitations live in the',
