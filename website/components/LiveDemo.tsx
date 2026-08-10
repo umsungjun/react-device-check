@@ -12,7 +12,7 @@ type Row = readonly [label: string, value: string];
 
 export default function LiveDemo({ strings }: LiveDemoProps) {
   const device = useDevice();
-  // Freeze the hydration-render snapshot — this is exactly what the server sent
+  // Freeze the hydration-render snapshot: this is exactly what the server sent
   const [firstPaint] = useState(device);
 
   const toRows = (d: typeof device): Row[] => [

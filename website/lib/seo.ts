@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import type { Locale } from '@/content/types';
 
-// Single source of truth for the deployed origin — change here if a custom domain is added
+// Single source of truth for the deployed origin. Change here if a custom domain is added
 export const SITE_URL = 'https://react-device-check-site.vercel.app';
 export const GITHUB_URL = 'https://github.com/umsungjun/react-device-check';
 export const NPM_URL = 'https://www.npmjs.com/package/react-device-check';
 
 const TITLES: Record<Locale, string> = {
-  en: 'react-device-check — React device detection hooks for CSR & SSR',
-  ko: 'react-device-check — CSR·SSR 모두를 위한 React 기기 판별 훅',
+  en: 'react-device-check: React device detection hooks for CSR & SSR',
+  ko: 'react-device-check: CSR·SSR 모두를 위한 React 기기 판별 훅',
 };
 
 const DESCRIPTIONS: Record<Locale, string> = {
@@ -49,7 +49,7 @@ export const buildMetadata = (locale: Locale): Metadata => ({
     description: DESCRIPTIONS[locale],
     locale: locale === 'en' ? 'en_US' : 'ko_KR',
     alternateLocale: locale === 'en' ? 'ko_KR' : 'en_US',
-    // Static file in public/ — explicit reference because the opengraph-image
+    // Static file in public/, referenced explicitly because the opengraph-image
     // file convention doesn't inject meta tags across route-group root layouts
     images: [{ url: '/og.png', width: 1200, height: 630, alt: TITLES[locale] }],
   },

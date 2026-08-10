@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// Real-browser E2E across a device matrix: each project emulates a device profile (UA + touch + viewport) against both example apps — CSR (Vite, :3001) and SSR (Next.js, :3002).
+// Real-browser E2E across a device matrix: each project emulates a device profile (UA + touch + viewport) against both example apps: CSR (Vite, :3001) and SSR (Next.js, :3002).
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,

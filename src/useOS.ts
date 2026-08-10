@@ -7,7 +7,7 @@ const getOS = (): OS => getStaticInfo().os;
 const getServerOS = (): OS => SERVER_STATIC.os;
 
 /**
- * Returns the operating system family only. Static — no media listeners are ever attached. Returns `'unknown'` on the server and during the hydration first paint.
+ * Returns the operating system family only. Static: no media listeners are ever attached. Returns `'unknown'` on the server and during the hydration first paint.
  */
 export function useOS(): OS {
   return useSES(emptySubscribe, getOS, getServerOS);

@@ -16,6 +16,6 @@ playwright-report/
 # Next.js (examples)
 .next/
 
-# Claude Code — local-only artifacts
+# Claude Code local-only artifacts
 .claude/agent-memory/
 .claude/settings.local.json

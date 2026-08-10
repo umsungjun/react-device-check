@@ -1,4 +1,4 @@
-// Imports the library source directly (like react-head-safe's example) for a fast edit-refresh loop.
+// Imports the library source directly for a fast edit-refresh loop.
 import { useDevice } from '../../src';
 
 export default function App() {
@@ -8,7 +8,7 @@ export default function App() {
     <main className="page">
       <h1>react-device-check</h1>
       <p className="subtitle">
-        Pure CSR (Vite) — values are correct from the very first render, no
+        Pure CSR (Vite): values are correct from the very first render, no
         hydration involved.
       </p>
 
@@ -51,7 +51,7 @@ export default function App() {
 
       <p className="hint">
         Tip: toggle the device emulation in your browser devtools and reload,
-        or rotate a real device — orientation and isTouchPrimary update live.
+        or rotate a real device, and orientation and isTouchPrimary update live.
       </p>
     </main>
   );

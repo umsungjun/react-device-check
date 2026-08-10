@@ -141,7 +141,7 @@ export const FIXTURES: Fixture[] = [
     expected: { type: 'mobile', os: 'android' },
   },
 
-  // ── B. iOS / WebKit (Tier 2 — no uaData ever exists on iOS) ─────────
+  // ── B. iOS / WebKit (Tier 2: no uaData ever exists on iOS) ─────────
   {
     name: 'iPhone Safari (iOS 26 frozen UA)',
     ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1',
@@ -172,7 +172,7 @@ export const FIXTURES: Fixture[] = [
     expected: { type: 'tablet', os: 'ios' },
   },
   {
-    name: 'iPad desktop mode (iPadOS 13+ default — Macintosh UA unmasked)',
+    name: 'iPad desktop mode (iPadOS 13+ default, Macintosh UA unmasked)',
     ua: SAFARI_DESKTOP_UA,
     maxTouchPoints: 5,
     platform: 'MacIntel',
@@ -210,7 +210,7 @@ export const FIXTURES: Fixture[] = [
     expected: { type: 'desktop', os: 'macos' },
   },
   {
-    name: 'Chrome iOS (CriOS — WebKit shell, no uaData)',
+    name: 'Chrome iOS (CriOS, WebKit shell, no uaData)',
     ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/146.0.0.0 Mobile/15E148 Safari/604.1',
     maxTouchPoints: 5,
     platform: 'iPhone',
@@ -231,7 +231,7 @@ export const FIXTURES: Fixture[] = [
     expected: { type: 'mobile', os: 'ios' },
   },
 
-  // ── C. Firefox (Tier 2 — no uaData) ─────────────────────────────────
+  // ── C. Firefox (Tier 2: no uaData) ─────────────────────────────────
   {
     name: 'Firefox Android phone (Mobile token)',
     ua: 'Mozilla/5.0 (Android 15; Mobile; rv:136.0) Gecko/136.0 Firefox/136.0',

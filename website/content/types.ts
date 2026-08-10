@@ -23,7 +23,7 @@ export interface DemoStrings extends SectionHeading {
   hint: string;
 }
 
-// One interface for every visible string — TypeScript keeps en/ko structurally in sync
+// One interface for every visible string. TypeScript keeps en/ko structurally in sync
 export interface LandingStrings {
   header: {
     langLabel: string;

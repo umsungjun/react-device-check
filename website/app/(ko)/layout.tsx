@@ -7,7 +7,7 @@ import '../globals.css';
 // Fallback for routes without their own metadata; pages override via buildMetadata
 export const metadata: Metadata = { metadataBase: new URL(SITE_URL) };
 
-// Second root layout for the /ko subtree — navigation across locales is a full page load by design
+// Second root layout for the /ko subtree. Navigation across locales is a full page load by design
 export default function KoLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko" className={`${inter.variable} ${jetbrainsMono.variable}`}>

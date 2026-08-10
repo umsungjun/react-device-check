@@ -92,7 +92,7 @@ describe('device store', () => {
 
     // The media state flips before any subscriber exists (render → passive effect gap).
     media.set(PORTRAIT_QUERY, false);
-    expect(getSnapshot()).toBe(stale); // no listener yet — still stale by design
+    expect(getSnapshot()).toBe(stale); // no listener yet, still stale by design
 
     const unsubscribe = subscribe(() => {});
     expect(getSnapshot().orientation).toBe('landscape');

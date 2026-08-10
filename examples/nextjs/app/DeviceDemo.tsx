@@ -11,7 +11,7 @@ export function DeviceDemo() {
   return (
     <>
       <section className="card">
-        <h2>Live values — useDevice()</h2>
+        <h2>Live values from useDevice()</h2>
         <dl>
           <div className="row">
             <dt>type</dt>
@@ -68,7 +68,7 @@ export function DeviceDemo() {
         <p className="hint">
           The server cannot know your device, so it renders the safe default
           (desktop / unknown). Because the hydration first paint uses the same
-          default, server and client HTML always match — then the hook corrects
+          default, server and client HTML always match, and then the hook corrects
           itself in one post-hydration render. No hydration error is ever
           logged.
         </p>

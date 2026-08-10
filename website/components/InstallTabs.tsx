@@ -23,7 +23,7 @@ export default function InstallTabs({ strings }: InstallTabsProps) {
       await navigator.clipboard.writeText(INSTALL_COMMANDS[active].command);
       setCopied(true);
     } catch {
-      // Copy silently failed — keep the hint label so the UI never claims success
+      // Copy silently failed, so keep the hint label so the UI never claims success
     }
   };
 

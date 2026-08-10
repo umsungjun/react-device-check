@@ -7,7 +7,7 @@ const getType = (): DeviceType => getStaticInfo().type;
 const getServerType = (): DeviceType => SERVER_STATIC.type;
 
 /**
- * Returns the device type only. Static — no media listeners are ever attached, and importing only this hook tree-shakes the whole reactive store away.
+ * Returns the device type only. Static: no media listeners are ever attached, and importing only this hook tree-shakes the whole reactive store away.
  */
 export function useDeviceType(): DeviceType {
   return useSES(emptySubscribe, getType, getServerType);

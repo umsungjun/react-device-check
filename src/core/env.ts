@@ -5,8 +5,8 @@ export const isServer =
   typeof window === 'undefined' || typeof navigator === 'undefined';
 
 /**
- * Reads detection signals from globals. Returns `undefined` outside a browser environment. Never accessed at module top level — all detection is lazy so importing the library is always SSR-safe.
- * Gated on `window` (not just `navigator`) because Node 21+ ships a global `navigator` whose `platform` reflects the server machine — trusting it would misreport the server's OS as the device. Non-window environments (workers, servers) should pass explicit input to `detectDevice` instead.
+ * Reads detection signals from globals. Returns `undefined` outside a browser environment. Never accessed at module top level, because all detection is lazy so importing the library is always SSR-safe.
+ * Gated on `window` (not just `navigator`) because Node 21+ ships a global `navigator` whose `platform` reflects the server machine, and trusting it would misreport the server's OS as the device. Non-window environments (workers, servers) should pass explicit input to `detectDevice` instead.
  */
 export function getNavigatorInput(): DetectionInput | undefined {
   if (isServer) return undefined;

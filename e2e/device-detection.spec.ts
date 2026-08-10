@@ -77,7 +77,7 @@ test.describe('SSR example (Next.js)', () => {
     await expect(page.getByTestId('first-type')).toHaveText('desktop');
     await expect(page.getByTestId('first-isHydrated')).toHaveText('false');
 
-    // React logs hydration mismatches via console.error — there must be none.
+    // React logs hydration mismatches via console.error, and there must be none.
     const hydrationIssues = [...consoleErrors, ...pageErrors].filter((text) =>
       /hydrat|did not match|mismatch/i.test(text)
     );
@@ -107,7 +107,7 @@ test.describe('reactivity contract', () => {
       portraitFirst ? 'landscape' : 'portrait'
     );
 
-    // Device identity is session-static by contract — rotation must not change it.
+    // Device identity is session-static by contract, so rotation must not change it.
     await expect(page.getByTestId('type')).toHaveText(expected.type);
   });
 });

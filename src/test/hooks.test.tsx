@@ -180,7 +180,7 @@ describe('hooks', () => {
   });
 
   describe('hydration', () => {
-    // react-dom/client does not exist on React 17 — the fallback path there renders the client snapshot directly and is covered by the compat CI leg.
+    // react-dom/client does not exist on React 17, so the fallback path there renders the client snapshot directly and is covered by the compat CI leg.
     const hasModernReact = parseInt(React.version, 10) >= 18;
 
     it.skipIf(!hasModernReact)(
@@ -188,7 +188,7 @@ describe('hooks', () => {
       async () => {
         stubNavigatorFromFixture(IPHONE);
         const { renderToString } = await import('react-dom/server');
-        // Vite's import analysis resolves literal dynamic imports at transform time (even with @vite-ignore), which crashes suite loading on React 17 where react-dom/client does not exist. A variable specifier is opaque to the analyzer, deferring resolution to runtime — after skipIf has excluded this test on React 17.
+        // Vite's import analysis resolves literal dynamic imports at transform time (even with @vite-ignore), which crashes suite loading on React 17 where react-dom/client does not exist. A variable specifier is opaque to the analyzer, deferring resolution to runtime, after skipIf has excluded this test on React 17.
         const clientSpecifier = 'react-dom/client';
         const { hydrateRoot } = (await import(
           /* @vite-ignore */ clientSpecifier

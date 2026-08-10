@@ -8,46 +8,52 @@
 
 **웹사이트 / 라이브 데모**: [react-device-check-site.vercel.app/ko](https://react-device-check-site.vercel.app/ko)
 
-**경량 · 정확한 React 기기 판별 훅 — CSR SPA부터 Next.js SSR까지 어떤 React 앱에서든.** 사용자가 폰인지 태블릿인지 데스크톱인지, 어떤 OS인지를 의존성 0개, 전체 ~1.5 kB(min+brotli)로 판별합니다. Next.js에서 hydration 에러가 발생하지 않습니다.
+**사용자가 폰인지 태블릿인지 데스크톱인지, 어떤 OS를 쓰는지 알려주는 React 훅입니다.** 의존성이 없고 전부 가져다 써도 ~1.5 kB(min+brotli)입니다. React 17, 18, 19에서 동작하고 타입 정의를 함께 배포하며, Next.js처럼 서버에서 HTML을 미리 만드는 환경에서도 에러가 나지 않습니다.
 
-2026년의 기기 판별은 보기보다 어렵습니다. iPad는 자신을 Mac이라고 위장하고, Chrome은 User-Agent 문자열을 동결했으며(모든 안드로이드 모델명이 `K`로 보고됨), Samsung DeX는 폰에서 데스크톱 리눅스 UA를 보내고, iOS 26은 OS 버전 토큰을 영구 동결했습니다. `react-device-check`는 여전히 동작하는 신호들 — User-Agent Client Hints, UA 문자열, `maxTouchPoints` 교차검증 — 을 정규식 데이터베이스가 아닌 작고 결정론적인 판별 트리로 융합합니다.
+## 이런 문제를 풀어줍니다
 
-## 왜 react-device-check인가?
+훅 하나를 부르면 기기 종류와 OS가 나옵니다.
 
-- **다른 라이브러리가 틀리는 곳에서 정확** — iPadOS 13+가 macOS 데스크톱 UA를 보내도 iPad를 태블릿으로 정확히 판별(`MacIntel` + 멀티터치 언마스킹). 안드로이드 태블릿은 공식 `Mobile` 토큰 규칙으로 구분. Samsung DeX, 웹뷰(카카오톡, 인스타그램 등), 레거시 UA까지 처리.
-- **Client Hints 우선** — Chromium에서는 `navigator.userAgentData`를 신뢰(UA 동결에 면역), 그 외에는 UA 파싱으로 폴백. 이 둘을 모두 하는 라이브러리는 사실상 없습니다.
-- **구조적으로 SSR-safe** — 서버 렌더와 hydration 첫 페인트가 항상 일치하므로 React 18/19에서는 hydration mismatch가 기록되지 않습니다 (React 17 + SSR은 문서화된 예외 — 알려진 한계 참조). hydration 직후 1회 렌더로 실제 값으로 교정됩니다.
-- **작고 tree-shakeable** — 런타임 의존성 0개, `sideEffects: false`, ESM/CJS 듀얼. `useIsMobile`만 import하면 ~1.1 kB이며 반응형 스토어 전체가 번들에서 제거됩니다. size-limit으로 CI에서 예산을 강제합니다.
-- **하이브리드 반응성** — `type`/`os`는 세션 동안 고정(UA 사실은 리로드 없이 변하지 않음), `isTouchPrimary`와 `orientation`은 `matchMedia` 리스너로 실시간 갱신 — 폴더블, DeX 도킹, iPad Stage Manager까지 커버.
-- **실브라우저 검증** — 76개 단위 테스트에 더해, Playwright E2E 매트릭스(iPhone 15, iPad Pro, Galaxy S24, Galaxy Tab S9, 데스크톱 Chrome/Safari)가 실제 Chromium/WebKit 엔진에서 판별 결과와 hydration 에러 0건을 검증합니다.
+```tsx
+const { type, os, isMobile, isTablet, isDesktop } = useDevice();
 
-### react-device-detect는요?
+// type → 'mobile' | 'tablet' | 'desktop'
+// os   → 'ios' | 'android' | 'windows' | 'macos' | 'linux' | 'unknown'
+```
 
-[react-device-detect](https://www.npmjs.com/package/react-device-detect)는 import 시점에 UA로 상수를 계산해서 SSR에서 크래시하거나 mismatch가 나고, iPad를 데스크톱으로 오판하며, 값이 갱신되지 않고, tree-shaking이 불가능한 ~13 kB gzip을 항상 배송합니다. 2023년 이후 유지보수가 중단됐고, 파서 의존성(ua-parser-js v2)이 AGPL로 전환되어 현대화가 막혀 있습니다. `react-device-check`는 오늘의 플랫폼 현실에 맞춰 설계된, 유지보수되는 MIT 대안입니다.
+화면 방향처럼 도중에 바뀌는 값도 함께 옵니다. 전체 목록은 [API 레퍼런스](#api-레퍼런스)에 있습니다.
 
-## 기능
+꺼내 쓰는 건 이렇게 간단합니다. 어려운 쪽은 저 값을 정확하게 만드는 일이고, 아래 셋이 대표적인 경우입니다.
 
-- ✅ `useDevice()` — 반응형 필드를 포함한 전체 기기 스냅샷
-- ✅ `useDeviceType()` / `useIsMobile()` / `useIsTablet()` / `useIsDesktop()` — 정적, 리스너 없음, 최대 tree-shaking
-- ✅ `useOS()` — `'ios' | 'android' | 'windows' | 'macos' | 'linux' | 'unknown'`
-- ✅ `detectDevice()` — React 없이 쓸 수 있는 순수 엔진 (서버, vanilla JS)
-- ✅ iPad 위장 해제, 안드로이드 태블릿 규칙, Samsung DeX, UA 축소 시대 대응
-- ✅ SSR-safe: Next.js App Router/Pages Router, Remix 등 어디서나
-- ✅ React 17, 18, 19 지원
-- ✅ TypeScript 우선, 의존성 0개, MIT
+**iPad 사용자에게 데스크톱 화면이 나갑니다.**
+브라우저는 요청할 때마다 User-Agent(줄여서 UA) 문자열을 함께 보냅니다. 그런데 iPadOS 13부터 iPad는 이 문자열에 자신을 Mac이라고 적어 보냅니다. UA만 읽는 라이브러리는 여기에 그대로 속습니다.
+
+→ UA와 함께 `maxTouchPoints`를 봅니다. 진짜 Mac은 0을 보고하고 iPad는 5를 보고하므로, "Mac인데 손가락 다섯 개가 닿는다"면 iPad입니다.
+
+**안드로이드에서 폰과 태블릿이 구분되지 않습니다.**
+Chrome이 UA에서 모델명을 지운 뒤로 모든 안드로이드 기기가 `K`라고만 보고합니다. 화면 크기로 짐작하는 방법은 사용자가 창을 줄이는 순간 틀립니다.
+
+→ Chrome 계열 브라우저는 UA 말고도 Client Hints라는 별도 정보를 제공합니다. 이쪽은 모델명 삭제와 무관하게 폰인지 아닌지를 알려줍니다. 이 값이 없는 브라우저에서는 UA에 `Mobile` 표시가 있는지로 갈라내는데, 구글이 안내하는 공식 방법입니다.
+
+**Next.js 콘솔에 hydration 에러가 쌓입니다.**
+서버에서 HTML을 미리 만들 때는 접속자가 어떤 기기인지 알 수 없습니다. 반면 브라우저는 압니다. 그래서 서버가 보낸 HTML과 브라우저가 처음 그린 화면이 어긋나고, React가 이를 에러로 보고합니다. (hydration은 서버가 만들어 둔 HTML을 브라우저에서 React가 이어받는 과정입니다.)
+
+→ 첫 화면에서는 서버와 브라우저가 똑같이 `desktop` / `unknown`을 씁니다. 어긋날 값 자체가 없으니 에러도 없습니다. 진짜 기기 정보는 그 직후 렌더 한 번으로 채워집니다.
+
+근거와 예외는 [판별 원리](#판별-원리)와 [판별하지 못하는 것](#이런-건-판별하지-못합니다)에 자세히 적어 두었습니다.
+
+## react-device-detect와 비교
+
+[react-device-detect](https://www.npmjs.com/package/react-device-detect)는 import 시점에 UA를 읽어 상수를 만듭니다. 그래서 SSR에서 크래시하거나 mismatch를 냅니다. iPad는 데스크톱으로 잘못 잡습니다. 한번 계산한 값은 갱신되지 않고, 쓰지 않는 코드를 덜어낼 수 없어 ~13 kB(gzip)을 언제나 통째로 내려보냅니다. 2023년 이후로 유지보수가 멈췄고, 파서 의존성인 ua-parser-js v2가 AGPL로 바뀌면서 현대화 길도 막혔습니다.
+
+Client Hints와 UA 파싱을 모두 갖춘 라이브러리는 사실상 없습니다. `react-device-check`는 지금의 플랫폼 현실에 맞춰 새로 설계한 MIT 대안입니다.
 
 ## 설치
 
 ```bash
 npm install react-device-check
-```
-
-```bash
-yarn add react-device-check
-```
-
-```bash
-pnpm add react-device-check
+# yarn add react-device-check
+# pnpm add react-device-check
 ```
 
 ## 빠른 시작
@@ -70,7 +76,7 @@ function App() {
 }
 ```
 
-값 하나만 필요하면 그 훅만 import하세요 — 나머지는 tree-shaking으로 제거됩니다:
+값 하나만 필요하다면 그 훅만 가져오면 됩니다.
 
 ```tsx
 import { useIsMobile, useOS } from 'react-device-check';
@@ -85,24 +91,28 @@ function DownloadButton() {
 }
 ```
 
+쓰지 않는 코드는 빌드할 때 번들에서 빠집니다. `useIsMobile` 하나만 쓰면 ~1.1 kB이고, 화면 회전 같은 실시간 변화를 감시하는 코드는 아예 포함되지 않습니다. 이 크기는 CI에서 size-limit이 확인합니다.
+
 ## API 레퍼런스
 
 ### `useDevice(): DeviceInfo`
 
 전체 기기 스냅샷을 반환하고 반응형 변경을 구독합니다.
 
-| 필드             | 타입                                                                 | 수명   | 설명                                                        |
-| ---------------- | -------------------------------------------------------------------- | ------ | ----------------------------------------------------------- |
-| `type`           | `'mobile' \| 'tablet' \| 'desktop'`                                  | 정적   | 기기 클래스                                                 |
-| `os`             | `'ios' \| 'android' \| 'windows' \| 'macos' \| 'linux' \| 'unknown'` | 정적   | OS 계열                                                     |
-| `isMobile`       | `boolean`                                                            | 정적   | `type === 'mobile'` 축약                                    |
-| `isTablet`       | `boolean`                                                            | 정적   | `type === 'tablet'` 축약                                    |
-| `isDesktop`      | `boolean`                                                            | 정적   | `type === 'desktop'` 축약                                   |
-| `isTouchPrimary` | `boolean`                                                            | 반응형 | `(pointer: coarse)` — 마우스 연결 시(DeX, iPad) 실시간 전환 |
-| `orientation`    | `'portrait' \| 'landscape'`                                          | 반응형 | 뷰포트 방향, 회전 시 갱신                                   |
-| `isHydrated`     | `boolean`                                                            | —      | 서버·hydration 첫 페인트에서 `false`, 직후 `true`           |
+| 필드             | 타입                                                                 | 수명     | 설명                                                          |
+| ---------------- | -------------------------------------------------------------------- | -------- | ------------------------------------------------------------- |
+| `type`           | `'mobile' \| 'tablet' \| 'desktop'`                                  | 정적     | 기기 클래스                                                   |
+| `os`             | `'ios' \| 'android' \| 'windows' \| 'macos' \| 'linux' \| 'unknown'` | 정적     | OS 계열                                                       |
+| `isMobile`       | `boolean`                                                            | 정적     | `type === 'mobile'` 축약                                      |
+| `isTablet`       | `boolean`                                                            | 정적     | `type === 'tablet'` 축약                                      |
+| `isDesktop`      | `boolean`                                                            | 정적     | `type === 'desktop'` 축약                                     |
+| `isTouchPrimary` | `boolean`                                                            | 반응형   | `(pointer: coarse)`. 마우스를 연결하면(DeX, iPad) 실시간 전환 |
+| `orientation`    | `'portrait' \| 'landscape'`                                          | 반응형   | 뷰포트 방향, 회전하면 갱신                                    |
+| `isHydrated`     | `boolean`                                                            | 1회 전환 | 서버와 hydration 첫 페인트에서 `false`, 직후 `true`           |
 
-> **참고:** `type`과 `os`는 의도적으로 세션당 고정입니다. UA 사실은 페이지 리로드 없이 변하지 않으며, 고정 유지가 UI 흔들림을 방지합니다. 뷰포트 의존적인 것은 반응형 필드(또는 CSS)를 사용하세요.
+**정적**은 페이지를 새로 열기 전까지 값이 고정된다는 뜻이고, **반응형**은 상황이 바뀌면 다시 렌더된다는 뜻입니다.
+
+> **참고:** `type`과 `os`를 세션당 고정으로 둔 것은 의도한 설계입니다. UA가 알려주는 사실은 페이지를 새로 열기 전까지 바뀌지 않고, 값을 붙박아 두어야 UI가 흔들리지 않습니다. 뷰포트에 따라 달라져야 하는 것은 반응형 필드나 CSS로 처리하세요.
 
 ### 정적 훅
 
@@ -114,11 +124,11 @@ useIsTablet(): boolean
 useIsDesktop(): boolean
 ```
 
-미디어 리스너를 전혀 부착하지 않습니다. 이 훅들만 import하면 반응형 스토어 전체가 번들에서 제거됩니다 (size-limit CI 체크로 강제).
+미디어 리스너를 하나도 붙이지 않습니다. 이 훅들만 import하면 반응형 스토어 전체가 번들에서 빠집니다.
 
-### `detectDevice(input?, options?)` — React 불필요
+### `detectDevice(input?, options?)` (React 불필요)
 
-훅 뒤에 있는 순수 엔진입니다. 모든 신호가 주입 가능해서 서버에서도 사용할 수 있습니다:
+훅 뒤에 있는 순수 엔진입니다. 모든 값을 주입할 수 있어 서버에서도 그대로 씁니다.
 
 ```ts
 import { detectDevice } from 'react-device-check';
@@ -126,7 +136,7 @@ import { detectDevice } from 'react-device-check';
 // 서버(Express, Next.js middleware 등)에서: 요청 UA를 전달.
 const { type, os } = detectDevice({ ua: req.headers['user-agent'] });
 
-// 신호 없는 환경을 위한 커스텀 fallback:
+// 읽을 값이 없는 환경을 위한 커스텀 fallback:
 detectDevice(undefined, { fallback: { type: 'mobile' } });
 ```
 
@@ -140,7 +150,7 @@ detectDevice(undefined, { fallback: { type: 'mobile' } });
 
 ### `getNavigatorInput(): DetectionInput | undefined`
 
-위 신호들을 브라우저 전역에서 읽어오는 함수 — 훅이 내부에서 쓰는 것과 동일한 리더입니다. `window`가 없는 환경에서는 `undefined`를 반환합니다: 웹 워커, 그리고 전역 `navigator`를 탑재한 Node 21+가 여기에 해당합니다 (Node의 `navigator.platform`은 **서버 머신**을 반영하므로 기기 판별에 신뢰하면 안 됩니다). `detectDevice`와 조합해 특정 신호만 바꿔볼 때 유용합니다:
+위 값들을 브라우저 전역에서 읽어 오는 함수이고, 훅이 내부에서 쓰는 리더와 같습니다. `window`가 없는 환경, 그러니까 웹 워커나 전역 `navigator`를 탑재한 Node 21+에서는 `undefined`를 돌려줍니다. Node의 `navigator.platform`은 **서버 머신**을 가리키므로 기기 판별에 쓰면 안 됩니다. `detectDevice`와 조합하면 특정 값만 바꿔 볼 수 있습니다.
 
 ```ts
 import { detectDevice, getNavigatorInput } from 'react-device-check';
@@ -150,51 +160,67 @@ const result = detectDevice({ ...getNavigatorInput(), screen: undefined });
 
 ## SSR 동작 (Next.js)
 
-서버는 기기를 알 수 없으므로 계약은 다음과 같습니다:
+서버는 기기를 알 수 없습니다. 그래서 이런 순서로 동작합니다.
 
 ```
-① 서버 렌더        → 동결된 기본값: { type: 'desktop', os: 'unknown', isHydrated: false }
+① 서버 렌더        → 고정된 기본값: { type: 'desktop', os: 'unknown', isHydrated: false }
 ② hydration 페인트 → 동일한 기본값 → 서버·클라이언트 HTML 항상 일치 → hydration 에러 없음
 ③ 직후             → 실제 값으로 1회 교정 렌더, isHydrated: true
 ```
 
-- 순수 CSR 앱(Vite, CRA)은 ①②를 건너뜁니다 — 첫 렌더부터 정확한 값.
-- 첫 페인트에서 추측하면 안 되는 UI는 `isHydrated`로 중립 플레이스홀더를 렌더하세요.
-- **레이아웃은 CSS 미디어 쿼리로, 이 훅은 행동 분기용으로** (어떤 SDK를 로드할지, 어떤 플로우를 시작할지, 어디로 리다이렉트할지). 그러면 교정 렌더와 무관하게 CLS가 0으로 유지됩니다.
-- 번들에 `'use client'` 배너가 포함되어 있어, React Server Component에서 import하면 알 수 없는 훅 에러 대신 명확한 경계 에러가 발생합니다.
+서버와 브라우저가 첫 화면에서 똑같은 값을 쓰기 때문에 둘이 어긋날 일이 없습니다. React 18/19에서 hydration mismatch가 구조적으로 생기지 않는 이유입니다. Next.js App Router와 Pages Router, Remix 어디서나 같습니다. React 17 + SSR만 예외이고, 아래에 적어 두었습니다.
+
+- 순수 CSR 앱(Vite, CRA)은 ①②를 건너뛰고 첫 렌더부터 정확한 값을 받습니다.
+- 첫 페인트에서 추측하면 안 되는 UI는 `isHydrated`를 보고 중립 플레이스홀더를 렌더하세요.
+- **레이아웃은 CSS 미디어 쿼리로, 이 훅은 행동 분기용으로** 쓰는 편이 좋습니다. 어떤 SDK를 로드할지, 어떤 플로우를 시작할지, 어디로 리다이렉트할지 같은 것들입니다. 그러면 교정 렌더와 무관하게 CLS가 0으로 유지됩니다.
+- 번들에 `'use client'` 배너가 들어 있어서, React Server Component에서 import하면 알 수 없는 훅 에러 대신 명확한 경계 에러가 납니다.
 
 ## 판별 원리
 
-신호를 우선순위로 융합합니다:
+기기를 알아낼 수 있는 값 세 가지를 순서대로 확인합니다. 같은 값이 들어오면 언제나 같은 답이 나옵니다.
 
-1. **User-Agent Client Hints** (`navigator.userAgentData`, Chromium 전용) — 존재하면 권위 신호. UA 동결에 면역. 안드로이드 태블릿은 공식 `Mobile` 토큰 규칙으로 폰과 구분.
-2. **UA 문자열** (Safari, Firefox, 웹뷰) — `iPhone`/`iPad` 토큰, 안드로이드 `Mobi` 규칙, `Windows`/`Mac`/`Linux` 계열.
-3. **`maxTouchPoints` 교차검증** — 터치포인트가 1보다 큰 "Mac"은 데스크톱 UA로 위장한 Apple 터치 기기(iPadOS 13+ 기본값). 화면 최단변으로 데스크톱 모드 iPhone과 iPad를 구분.
+**1. User-Agent Client Hints** (`navigator.userAgentData`, Chrome 계열만 제공)
 
-## 알려진 한계
+UA가 한 덩어리 문자열인 것과 달리, 이쪽은 "모바일인가", "어떤 OS인가"가 항목별로 따로 옵니다. Chrome이 UA에서 모델명을 지운 것과도 무관합니다. 그래서 이 값이 있으면 가장 먼저 믿습니다.
 
-정직한 판별이란 판별할 수 없는 것을 문서화하는 것입니다:
+안드로이드에서 폰과 태블릿은 `mobile` 항목으로 갈립니다. 안드로이드인데 `mobile`이 `false`면 태블릿이라는 것이 구글이 안내하는 규칙입니다.
 
-- **SSR은 데스크톱 모드 iPad를 볼 수 없음** — 데스크톱 모드 iPad의 요청은 Mac과 바이트 단위로 동일합니다. 서버는 fallback을 렌더하고, 클라이언트가 hydration 직후 교정합니다.
-- **iPhone "데스크톱 웹사이트 요청"**은 화면 크기로 언마스킹하며, 화면 정보가 없으면 `tablet`/`ios`로 보고됩니다.
-- **Samsung DeX는 `desktop`으로 보고** (Samsung 공식 가이드), `SamsungBrowser` 토큰이 보이면 `os: 'android'`.
-- **Chrome 안드로이드 "데스크톱 사이트 요청"**은 `desktop`/`linux` — 기능이 설계대로 동작하는 것이며, 실제 리눅스 데스크톱과 구분 불가능합니다.
-- **폴더블**(갤럭시 폴드/플립)은 양쪽 화면 모두 `mobile` — UA 신호가 존재하지 않습니다. 폴드 대응 UI는 뷰포트 기반 레이아웃을 사용하세요.
-- **윈도우 터치 노트북과 Surface는 `desktop`** — 터치 능력은 기기 정체성이 아닙니다 (Google·Microsoft 가이드와 일치).
-- **ChromeOS는 `os: 'linux'`**, visionOS Safari는 `tablet`/`ios`로 보고됩니다.
-- **TV는 `desktop`으로 보고** — Android TV / Fire TV / BRAVIA / Chromecast UA는 best-effort TV 마커로 감지해 `desktop`으로 매핑합니다. 3분류 택소노미에서 터치 없는 10-foot UI에 가장 가까운 값입니다.
-- **HarmonyOS NEXT는 `os: 'unknown'`** — ArkWeb의 `Phone`/`Tablet` 토큰으로 `type`은 정확히 판별하지만, v1 OS 유니언에 HarmonyOS 값이 없습니다.
-- **봇**은 에뮬레이션하는 기기대로 분류됩니다 (Googlebot 스마트폰 → `mobile`/`android`).
-- **UA 스푸핑에는 무방비** — 클라이언트 사이드 판별은 결정론적일 수는 있어도 적대적 환경을 이길 수는 없습니다.
-- **React 17 + SSR은 hydration 경고가 기록될 수 있음** — React 17에는 `useSyncExternalStore`가 없어 내부 폴백(공식 shim과 동일한 한계)이 hydration 첫 페인트에 클라이언트 스냅샷을 렌더합니다. React 18/19는 구조적으로 mismatch가 없고, React 17 CSR은 영향이 없습니다.
+**2. UA 문자열** (Safari, Firefox, 웹뷰)
 
-## 로드맵
+Client Hints를 주지 않는 브라우저에서만 씁니다. 문자열에 `iPhone`이나 `iPad`가 들어 있는지, 안드로이드라면 `Mobi`라는 표시가 있는지, 그 밖에는 `Windows`·`Mac`·`Linux` 중 무엇인지를 봅니다. `Mobi`가 있으면 폰, 없으면 태블릿입니다.
 
-- 인앱 브라우저 판별 (카카오톡, 네이버, 인스타그램, 라인, 위챗, 일반 웹뷰) + 외부 브라우저 탈출 헬퍼
-- `<DeviceProvider ssrDevice={...}>` — 서버에서 파싱한 UA를 주입해 첫 페인트부터 정확한 값
-- 프레임워크 없이 쓰는 `react-device-check/core` subpath
-- 비동기 `getHighEntropyValues`/`formFactors` 정밀화 (크롬북 태블릿)
-- 브라우저명 판별
+**3. `maxTouchPoints` 교차검증**
+
+Mac을 자처하는 iPad가 여기서 걸러집니다. 진짜 Mac은 동시에 인식하는 터치 지점이 0개인데 iPad는 5개입니다. 그래서 "Mac이라는데 터치 지점이 1개보다 많다"면 데스크톱 UA를 쓰는 Apple 터치 기기입니다.
+
+그게 iPad인지 데스크톱 모드를 켠 iPhone인지는 화면의 짧은 쪽 길이로 나눕니다. 가장 큰 iPhone이 440px 언저리, 가장 작은 iPad가 744px이라 두 범위가 겹치지 않습니다.
+
+카카오톡·인스타그램 같은 인앱 웹뷰와 옛날 UA 문자열도 모두 이 순서를 그대로 지납니다.
+
+## 이런 건 판별하지 못합니다
+
+아래는 `react-device-check`가 틀리게 답하거나 아예 알 수 없는 경우입니다. 미리 알고 쓰시라고 모아 두었습니다.
+
+**일부러 이렇게 정한 것**
+
+- Samsung DeX는 `desktop`입니다. 폰이지만 데스크톱처럼 쓰는 모드라서, 삼성 공식 가이드를 따랐습니다. 이때 `SamsungBrowser` 표시가 보이면 `os`는 `android`로 둡니다.
+- 윈도우 터치 노트북과 Surface도 `desktop`입니다. 터치가 된다고 노트북이 태블릿이 되지는 않습니다. 구글·마이크로소프트 가이드와 같은 입장입니다.
+- TV는 `desktop`입니다. Android TV, Fire TV, BRAVIA, Chromecast를 최대한 알아내서 `desktop`으로 보냅니다. mobile·tablet·desktop 셋 중에서는 리모컨으로 멀리서 쓰는 화면에 desktop이 가장 가깝습니다.
+- ChromeOS는 `os: 'linux'`, visionOS Safari는 `tablet`/`ios`로 나옵니다.
+- 봇은 자신이 흉내 내는 기기를 그대로 따라갑니다. Googlebot 스마트폰이면 `mobile`/`android`입니다.
+
+**알아낼 방법이 없는 것**
+
+- 서버에서는 데스크톱 모드 iPad를 알아볼 수 없습니다. 요청 내용이 Mac과 한 글자도 다르지 않기 때문입니다. 서버는 일단 기본값을 보내고, 브라우저가 넘겨받은 직후 바로잡습니다.
+- iPhone에서 "데스크톱 웹사이트 요청"을 켰는데 화면 크기까지 알 수 없으면 `tablet`/`ios`로 나옵니다. 화면 크기가 있으면 폰으로 제대로 잡습니다.
+- Chrome 안드로이드의 "데스크톱 사이트 요청"은 `desktop`/`linux`가 됩니다. 브라우저가 의도적으로 리눅스 데스크톱인 척하는 것이라 진짜와 구분할 방법이 없습니다.
+- 폴더블(갤럭시 폴드/플립)은 펼쳐도 접어도 `mobile`입니다. 지금 접혀 있는지 알려주는 값이 아예 없습니다. 펼침 상태에 맞춰야 하는 화면은 CSS 미디어 쿼리로 만드세요.
+- UA를 일부러 바꿔서 접속하는 것은 막지 못합니다. 받은 값에 일관된 답을 낼 뿐, 작정하고 속이는 상대를 가려내지는 못합니다.
+
+**아직 지원하지 않는 것**
+
+- HarmonyOS NEXT는 `os`가 `'unknown'`으로 나옵니다. `type`은 정확합니다. v1의 `os` 목록에 HarmonyOS를 아직 넣지 않았습니다.
+- React 17에서 서버 렌더링을 쓰면 hydration 경고가 찍힐 수 있습니다. React 17에는 이 훅이 쓰는 `useSyncExternalStore`가 없어서, 대신 넣어둔 코드가 첫 화면부터 브라우저 값을 그려버립니다. React 공식 대체 구현도 똑같은 한계를 갖고 있습니다. React 18/19에서는 생기지 않고, React 17이어도 서버 렌더링을 쓰지 않으면 문제없습니다.
 
 ## 로컬 개발
 
@@ -210,13 +236,13 @@ pnpm e2e            # 두 예제에 대한 Playwright 기기 매트릭스 E2E
 
 ## 테스트
 
-- **85개 단위 테스트** — 실제 UA 문자열 48개 픽스처 매트릭스 포함 (동결된 Chrome UA, iOS 26, iPad 데스크톱 모드, DeX, Firefox 태블릿, 카카오톡 웹뷰, Fire TV, Opera Mini, HarmonyOS NEXT 등)
-- **Playwright E2E** — 6개 기기 프로필에서 실제 Chromium/WebKit로 판별 결과, 서버 원본 HTML, hydration 에러 0건 검증
-- CI는 React 17/18/19 호환 레그, `@arethetypeswrong/cli`, size-limit 예산을 실행
+- 단위 테스트 85개. 실제 UA 문자열 48개를 픽스처 매트릭스로 돌립니다(동결된 Chrome UA, iOS 26, iPad 데스크톱 모드, DeX, Firefox 태블릿, 카카오톡 웹뷰, Fire TV, Opera Mini, HarmonyOS NEXT 등).
+- Playwright E2E는 기기 프로필 6개를 실제 Chromium/WebKit로 띄워 판별 결과와 서버 원본 HTML, hydration 에러 0건을 확인합니다.
+- CI는 React 17/18/19 호환 레그, `@arethetypeswrong/cli`, size-limit 예산을 실행합니다.
 
 ## 기여
 
-이슈와 풀 리퀘스트를 환영합니다! 제출 전에 `pnpm lint && pnpm typecheck && pnpm test`를 실행해주세요.
+이슈와 풀 리퀘스트를 환영합니다. 제출 전에 `pnpm lint && pnpm typecheck && pnpm test`를 실행해 주세요.
 
 ## 라이선스
 
