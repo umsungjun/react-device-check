@@ -29,20 +29,20 @@ pnpm vitest run -t "test name pattern"
 
 ### Core flow
 
-1. `src/types.ts` — all public types (`DeviceType`, `OS`, `DeviceInfo`, `DetectionInput`, …)
-2. `src/core/detect.ts` — `detectDevice(input, options)`: the pure decision-tree engine. Tier 1 trusts Chromium Client Hints (`uaData.mobile`/`platform`); Tier 2 parses the UA string cross-checked with `maxTouchPoints` (iPad-as-Mac unmasking). Deterministic: same input → same output; no globals.
-3. `src/core/env.ts` — `isServer` + `getNavigatorInput()`: the only place globals are read. Gated on `window` because Node 21+ ships a global `navigator` that would misreport the server's OS.
-4. `src/core/static.ts` — session cache of the static info + the frozen `SERVER_STATIC` default (`desktop`/`unknown`).
-5. `src/core/store.ts` — the reactive store for `useDevice()`: lazily attaches two `matchMedia` listeners (`(pointer: coarse)`, `(orientation: portrait)`) with the first subscriber, caches the snapshot object so its reference only changes when a reactive field changes (useSyncExternalStore requirement).
-6. `src/compat.ts` — `useSES`: native `useSyncExternalStore` when available, otherwise a ~20-line React 17 fallback. Uses namespace property access (not a named import) so React 17 doesn't throw.
-7. `src/useDevice.ts` / `src/useDeviceType.ts` / `src/useOS.ts` — thin hook wrappers. Static hooks import only `core/static`, so importing them alone tree-shakes the reactive store away (verified by the size-limit budgets).
+1. `src/types.ts`: all public types (`DeviceType`, `OS`, `DeviceInfo`, `DetectionInput`, …)
+2. `src/core/detect.ts`: `detectDevice(input, options)`: the pure decision-tree engine. Tier 1 trusts Chromium Client Hints (`uaData.mobile`/`platform`); Tier 2 parses the UA string cross-checked with `maxTouchPoints` (iPad-as-Mac unmasking). Deterministic: same input → same output; no globals.
+3. `src/core/env.ts`: `isServer` + `getNavigatorInput()`: the only place globals are read. Gated on `window` because Node 21+ ships a global `navigator` that would misreport the server's OS.
+4. `src/core/static.ts`: session cache of the static info + the frozen `SERVER_STATIC` default (`desktop`/`unknown`).
+5. `src/core/store.ts`: the reactive store for `useDevice()`: lazily attaches two `matchMedia` listeners (`(pointer: coarse)`, `(orientation: portrait)`) with the first subscriber, caches the snapshot object so its reference only changes when a reactive field changes (useSyncExternalStore requirement).
+6. `src/compat.ts`: `useSES`: native `useSyncExternalStore` when available, otherwise a ~20-line React 17 fallback. Uses namespace property access (not a named import) so React 17 doesn't throw.
+7. `src/useDevice.ts` / `src/useDeviceType.ts` / `src/useOS.ts`: thin hook wrappers. Static hooks import only `core/static`, so importing them alone tree-shakes the reactive store away (verified by the size-limit budgets).
 
 ### Invariants to preserve
 
-- **No module-top-level access to `window`/`navigator`** — all detection is lazy. This is the SSR-safety foundation.
-- **Snapshot references must be stable** — `getServerSnapshot` returns a frozen module constant; the client snapshot is cached and only replaced when a reactive field changes. Fresh objects per call make React loop infinitely.
+- **No module-top-level access to `window`/`navigator`**: all detection is lazy. This is the SSR-safety foundation.
+- **Snapshot references must be stable**: `getServerSnapshot` returns a frozen module constant; the client snapshot is cached and only replaced when a reactive field changes. Fresh objects per call make React loop infinitely.
 - **Branch order in `detect.ts` matters**: iPhone before Mac (`like Mac OS X`), Android before Windows/Linux (`Linux; Android`), the generic `/Mobi/` catch-all before Windows/Linux (Windows Phone/Tizen/Sailfish carry desktop OS tokens plus a mobile marker), TV markers before the Android tablet verdict, Tier 1 before Tier 2 (safe because iOS browsers never expose `userAgentData`). Case-sensitive regexes keep jsdom's lowercase `(darwin)` out.
-- **`maxTouchPoints` is consulted ONLY in the Apple-masquerade branch** — touch laptops/Surface must stay `desktop`.
+- **`maxTouchPoints` is consulted ONLY in the Apple-masquerade branch**: touch laptops/Surface must stay `desktop`.
 - **`type`/`os` are static per session by contract**; only `isTouchPrimary`/`orientation` are reactive.
 
 ### SSR contract
@@ -51,11 +51,11 @@ Server render and hydration first paint both return the frozen default (`desktop
 
 ### Testing
 
-- `src/test/fixtures.ts` — 48 real-world UA fixtures; `detect.test.ts` runs the matrix via pure injection (no global mocks). Update the fixture counts in both READMEs and this file when adding fixtures.
+- `src/test/fixtures.ts`: 48 real-world UA fixtures; `detect.test.ts` runs the matrix via pure injection (no global mocks). Update the fixture counts in both READMEs and this file when adding fixtures.
 - `src/test/helpers.ts` (`vi.stubGlobal` navigator stub) + `matchMediaMock.ts` (controllable harness) for store/hook tests; `setup.ts` resets the session caches and unstubs globals after each test.
-- Hook tests use **probe components, not renderHook** — the React 17 CI leg pins RTL 12 which has no renderHook.
+- Hook tests use **probe components, not renderHook**: the React 17 CI leg pins RTL 12 which has no renderHook.
 - `ssr.test.tsx` runs with `// @vitest-environment node` to exercise the real no-DOM path.
-- `e2e/device-detection.spec.ts` — Playwright matrix (iPhone 15, iPad Pro 11, Galaxy S24, Galaxy Tab S9 with `isMobile: false` to reproduce real tablet Client Hints, desktop Chrome/Safari) against both examples. The SSR test asserts the raw server HTML and zero hydration console errors.
+- `e2e/device-detection.spec.ts`: Playwright matrix (iPhone 15, iPad Pro 11, Galaxy S24, Galaxy Tab S9 with `isMobile: false` to reproduce real tablet Client Hints, desktop Chrome/Safari) against both examples. The SSR test asserts the raw server HTML and zero hydration console errors.
 
 ### Adding a detection rule
 
@@ -65,11 +65,16 @@ Server render and hydration first paint both return the frozen default (`desktop
 
 ### Code style
 
-Write all code comments in English — this overrides the global "Korean comments" rule. The library is published to npm for an international audience. User-facing documentation keeps a Korean translation (`README.ko.md`).
+Write all code comments in English. This overrides the global "Korean comments" rule. The library is published to npm for an international audience. User-facing documentation keeps a Korean translation (`README.ko.md`).
+
+Never use an em dash (`—`) anywhere: code, comments, commit messages, READMEs, website copy, or the npm `description`.
+Use a comma, a colon, parentheses, or a separate sentence instead.
+`grep -rn '—'` outside `node_modules`/`.next`/`dist`/`coverage` must stay empty.
+The en dash in a numeric range (`React 17–19`) is not affected.
 
 ### Commit messages
 
-Write commit messages in English — subject and body — overriding the global Korean commit-message convention. The repository is public and its history is read by an international audience, same rationale as the code-comment rule above. Keep the rest of the global convention: one sentence per line (no width-driven wrapping), and no `Co-Authored-By` footer.
+Write commit messages in English, subject and body, overriding the global Korean commit-message convention. The repository is public and its history is read by an international audience, same rationale as the code-comment rule above. Keep the rest of the global convention: one sentence per line (no width-driven wrapping), and no `Co-Authored-By` footer.
 
 ### Build output
 
@@ -79,12 +84,12 @@ React is the only external (peer dependency). Bundle budgets: everything ≤ 2 k
 
 ### Examples
 
-- `examples/basic` — Vite CSR app importing the library source (`../../src`) directly.
-- `examples/nextjs` — Next.js 15 App Router app consuming the **built package** via `"react-device-check": "link:../.."` — run `pnpm build` at the root before starting it.
+- `examples/basic`: Vite CSR app importing the library source (`../../src`) directly.
+- `examples/nextjs`: Next.js 15 App Router app consuming the **built package** via `"react-device-check": "link:../.."`, so run `pnpm build` at the root before starting it.
 
 ### Website
 
-`website/` is a standalone Next.js 15 promo/landing site (own lockfile, not a workspace member) consuming the **published npm package** — unlike both examples, it needs no root build. English at `/`, Korean at `/ko` via two route-group root layouts (each sets its own `<html lang>`); hreflang/canonical/OG metadata come from `website/lib/seo.ts` (`SITE_URL` is the single deploy-URL definition). The OG image is the static `website/public/og.png`, referenced explicitly in `lib/seo.ts` (the `opengraph-image` file convention does not inject meta tags across route-group root layouts). Deployed on Vercel with Root Directory = `website`; excluded from CI, lint, size-limit, and the Playwright E2E matrix. The examples' ports and `data-testid` contracts are untouched by it.
+`website/` is a standalone Next.js 15 promo/landing site (own lockfile, not a workspace member) consuming the **published npm package**. Unlike both examples, it needs no root build. English at `/`, Korean at `/ko` via two route-group root layouts (each sets its own `<html lang>`); hreflang/canonical/OG metadata come from `website/lib/seo.ts` (`SITE_URL` is the single deploy-URL definition). The OG image is the static `website/public/og.png`, referenced explicitly in `lib/seo.ts` (the `opengraph-image` file convention does not inject meta tags across route-group root layouts). Deployed on Vercel with Root Directory = `website`; excluded from CI, lint, size-limit, and the Playwright E2E matrix. The examples' ports and `data-testid` contracts are untouched by it.
 
 ### Package manager
 
