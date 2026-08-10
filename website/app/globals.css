@@ -194,13 +194,14 @@ a:hover {
   text-align: center;
 }
 
+/* Stays inside the hero horizontally: a side bleed would widen the page's scrollable area on mobile. The wider ellipse keeps the previous glow size. */
 .hero::before {
   content: '';
   position: absolute;
-  inset: -6rem -4rem auto;
+  inset: -6rem 0 auto;
   height: 26rem;
   background: radial-gradient(
-    ellipse 60% 70% at 50% 0%,
+    ellipse 67% 70% at 50% 0%,
     var(--glow),
     transparent 70%
   );
@@ -743,9 +744,23 @@ a:hover {
 }
 
 @media (max-width: 960px) {
+  /* minmax(0, 1fr): a bare 1fr floors the track at the 400px TV mockup's min-content and blows the page out horizontally */
   .showcase-item {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     padding: 1.75rem;
+  }
+
+  /* Single column: the fixed-px mockups become fluid instead of overflowing */
+  .showcase-visual,
+  .device3d {
+    min-width: 0;
+  }
+
+  .device3d,
+  .frame,
+  .stand-neck,
+  .stand-base {
+    max-width: 100%;
   }
 
   .laptop-deck {
