@@ -1,4 +1,4 @@
-// Locale-independent code snippets — code and comments stay English for both locales
+// Locale-independent code snippets. Code and comments stay English for both locales
 
 // One entry per package manager, rendered as click-to-copy tabs in the hero
 export const INSTALL_COMMANDS = [
@@ -17,7 +17,7 @@ export default function Page() {
   const { type, os, isMobile, isHydrated } = useDevice();
 
   // Server render & hydration first paint: type = 'desktop', isHydrated = false.
-  // One render later the real device shows up — no hydration mismatch, ever.
+  // One render later the real device shows up. No mismatch, ever.
   if (!isHydrated) return <Skeleton />;
 
   if (isMobile && os === 'ios') return <AppStoreBanner />;
@@ -29,7 +29,7 @@ export default function Page() {
     code: `import { useIsMobile, useOS } from 'react-device-check';
 
 export default function DownloadButton() {
-  const isMobile = useIsMobile(); // boolean only — ~1.1 kB total
+  const isMobile = useIsMobile(); // boolean only, ~1.1 kB total
   const os = useOS(); // 'ios' | 'android' | ...
 
   if (isMobile && os === 'ios') return <AppStoreButton />;
@@ -42,7 +42,7 @@ export default function DownloadButton() {
     code: `import { detectDevice } from 'react-device-check';
 
 export function middleware(request: Request) {
-  // No React, no globals — inject any signals you have
+  // No React, no globals. Inject the signals you have
   const { type } = detectDevice({
     ua: request.headers.get('user-agent') ?? '',
   });

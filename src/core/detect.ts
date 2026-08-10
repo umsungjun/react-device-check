@@ -14,7 +14,7 @@ const UA_DATA_PLATFORM_MAP: Record<string, OS> = {
 // Phone-class shortest screen side in CSS px: the largest iPhone is ~440, the smallest iPad is 744.
 const PHONE_SCREEN_MAX = 600;
 
-// TV form factors (Android TV, Fire TV 'AFT*' models, Chromecast 'CrKey', Sony BRAVIA, Roku). Android TV UAs carry 'Android' without 'Mobile', which would otherwise land in the tablet bucket — the wrongest fit for a 10-foot no-touch UI; with a three-way taxonomy, desktop is the best fit. \bTV\b also covers 'SMART-TV' and 'Android TV'; SmartTV/GoogleTV lack the word boundary and are listed explicitly.
+// TV form factors (Android TV, Fire TV 'AFT*' models, Chromecast 'CrKey', Sony BRAVIA, Roku). Android TV UAs carry 'Android' without 'Mobile', which would otherwise land in the tablet bucket, the wrongest fit for a 10-foot no-touch UI; with a three-way taxonomy, desktop is the best fit. \bTV\b also covers 'SMART-TV' and 'Android TV'; SmartTV/GoogleTV lack the word boundary and are listed explicitly.
 const TV_UA = /\bTV\b|SmartTV|GoogleTV|CrKey|Roku|\bAFT[A-Z0-9]|BRAVIA/;
 
 // All regexes are case-sensitive on purpose: real UA tokens are cased exactly like this, and case-sensitivity keeps lowercase tokens such as jsdom's '(darwin)' out of the Mac/Linux buckets.
@@ -29,9 +29,9 @@ function sniffOS(ua: string): OS {
 }
 
 /**
- * Pure device detection engine. Same input always produces the same output — no globals, no media queries.
+ * Pure device detection engine. Same input always produces the same output, with no globals and no media queries.
  *
- * Signal priority: Client Hints (`uaData`, authoritative when present — only Chromium exposes it) → UA string cross-checked with `maxTouchPoints` (Safari/Firefox/WebViews) → fallback.
+ * Signal priority: Client Hints (`uaData`, authoritative when present; only Chromium exposes it) → UA string cross-checked with `maxTouchPoints` (Safari/Firefox/WebViews) → fallback.
  *
  * Works anywhere: pass `navigator`-derived values on the client or a request's `user-agent` header on the server.
  */
@@ -44,21 +44,21 @@ export function detectDevice(
     os: options?.fallback?.os ?? ('unknown' as OS),
   };
 
-  // STEP 0 — no usable signals (SSR, bare React Native).
+  // STEP 0: no usable signals (SSR, bare React Native).
   if (!input || (!input.ua && !input.uaData)) return fallback;
 
   const ua = input.ua ?? '';
   const maxTouchPoints = input.maxTouchPoints ?? 0;
   const uaData = input.uaData;
 
-  // TIER 1 — Chromium Client Hints. Safe to trust first: no iOS browser ever exposes userAgentData (they are all WebKit), so the iPad-as-Mac unmasking below is never bypassed.
+  // TIER 1: Chromium Client Hints. Safe to trust first: no iOS browser ever exposes userAgentData (they are all WebKit), so the iPad-as-Mac unmasking below is never bypassed.
   if (uaData && typeof uaData.mobile === 'boolean') {
     let os = UA_DATA_PLATFORM_MAP[uaData.platform ?? ''] ?? sniffOS(ua);
-    // Samsung DeX / desktop-mode requests report a Linux platform while the UA keeps the SamsungBrowser token — effectively always an Android device in desktop clothing.
+    // Samsung DeX / desktop-mode requests report a Linux platform while the UA keeps the SamsungBrowser token, so it is effectively always an Android device in desktop clothing.
     if (os === 'linux' && /SamsungBrowser/.test(ua)) os = 'android';
     if (uaData.mobile) return { type: 'mobile', os };
     if (os === 'android') {
-      // mobile === false on Android: an Android UA without the 'Mobile' token is a tablet (Google's official rule) — unless it is a TV. A UA that dropped the Android token entirely is a desktop-form request (Samsung DeX, "Request desktop site").
+      // mobile === false on Android: an Android UA without the 'Mobile' token is a tablet (Google's official rule), unless it is a TV. A UA that dropped the Android token entirely is a desktop-form request (Samsung DeX, "Request desktop site").
       return {
         type: /Android/.test(ua) && !TV_UA.test(ua) ? 'tablet' : 'desktop',
         os,
@@ -68,7 +68,7 @@ export function detectDevice(
     return { type: 'desktop', os };
   }
 
-  // TIER 2 — UA string + touch cross-checks (Safari, Firefox, WebViews, legacy Chromium).
+  // TIER 2: UA string + touch cross-checks (Safari, Firefox, WebViews, legacy Chromium).
 
   // iPhone/iPod before any Mac check: their UAs contain 'like Mac OS X'.
   if (/iPhone|iPod/.test(ua)) return { type: 'mobile', os: 'ios' };

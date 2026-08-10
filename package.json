@@ -1,7 +1,7 @@
 {
   "name": "react-device-check",
   "version": "0.1.0",
-  "description": "Lightweight, accurate React hooks for device detection in any React app — CSR or SSR. Detect device type (mobile/tablet/desktop) and OS (iOS/Android/Windows/macOS/Linux) with zero dependencies. SSR-safe in Next.js, handles iPad-as-Mac masquerading, Samsung DeX, and User-Agent reduction. TypeScript support included.",
+  "description": "Lightweight, accurate React hooks for device detection in any React app, CSR or SSR. Detect device type (mobile/tablet/desktop) and OS (iOS/Android/Windows/macOS/Linux) with zero dependencies. SSR-safe in Next.js, handles iPad-as-Mac masquerading, Samsung DeX, and User-Agent reduction. TypeScript support included.",
   "author": "umsungjun",
   "license": "MIT",
   "repository": {

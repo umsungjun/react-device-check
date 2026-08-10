@@ -3,7 +3,7 @@ import { isServer } from './env';
 import { getStaticInfo, SERVER_STATIC } from './static';
 
 /**
- * Snapshot for the server render and the hydration first paint. Frozen module constant — getServerSnapshot runs on every SSR/hydration render and a fresh object would make React loop.
+ * Snapshot for the server render and the hydration first paint. Frozen module constant, because getServerSnapshot runs on every SSR/hydration render and a fresh object would make React loop.
  */
 export const SERVER_SNAPSHOT: DeviceInfo = Object.freeze({
   ...SERVER_STATIC,
@@ -53,7 +53,7 @@ function onChange(): void {
   }
 }
 
-// addEventListener with addListener fallback (Safari < 14).
+// addListener is the Safari < 14 path.
 function listen(mql: MediaQueryList, cb: () => void): void {
   if (mql.addEventListener) mql.addEventListener('change', cb);
   else mql.addListener(cb);

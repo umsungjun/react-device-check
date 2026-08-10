@@ -5,7 +5,6 @@ type MediaListener = (e: { matches: boolean; media: string }) => void;
 export interface MatchMediaController {
   /** Updates the state of a query and fires its change listeners. */
   set(query: string, matches: boolean): void;
-  /** Number of active change listeners for a query (for lifecycle assertions). */
   listenerCount(query: string): number;
 }
 
