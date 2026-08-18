@@ -76,6 +76,12 @@
       "limit": "1.5 kB"
     },
     {
+      "name": "useDevicePixelRatio only (no detection engine)",
+      "path": "dist/index.mjs",
+      "import": "{ useDevicePixelRatio }",
+      "limit": "0.7 kB"
+    },
+    {
       "name": "detectDevice only (no React)",
       "path": "dist/index.mjs",
       "import": "{ detectDevice }",
@@ -133,6 +139,9 @@
     "responsive",
     "typescript",
     "zero-dependencies",
-    "tree-shakeable"
+    "tree-shakeable",
+    "device-pixel-ratio",
+    "dpr",
+    "retina"
   ]
 }

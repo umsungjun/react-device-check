@@ -1,5 +1,6 @@
 import type { DeviceInfo } from '../types';
 import { isServer } from './env';
+import { listen, unlisten } from './media';
 import { getStaticInfo, SERVER_STATIC } from './static';
 
 /**
@@ -51,17 +52,6 @@ function onChange(): void {
     snapshot = next;
     listeners.forEach((l) => l());
   }
-}
-
-// addListener is the Safari < 14 path.
-function listen(mql: MediaQueryList, cb: () => void): void {
-  if (mql.addEventListener) mql.addEventListener('change', cb);
-  else mql.addListener(cb);
-}
-
-function unlisten(mql: MediaQueryList, cb: () => void): void {
-  if (mql.removeEventListener) mql.removeEventListener('change', cb);
-  else mql.removeListener(cb);
 }
 
 export function subscribe(listener: () => void): () => void {

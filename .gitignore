@@ -19,3 +19,6 @@ playwright-report/
 # Claude Code local-only artifacts
 .claude/agent-memory/
 .claude/settings.local.json
+
+# TypeScript incremental build cache
+*.tsbuildinfo

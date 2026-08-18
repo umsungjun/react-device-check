@@ -6,7 +6,7 @@ export const en: LandingStrings = {
     langHref: '/ko',
   },
   hero: {
-    badges: ['~1.5 kB min+brotli', 'Zero dependencies', 'React 17–19', 'MIT'],
+    badges: ['~1.6 kB min+brotli', 'Zero dependencies', 'React 17–19', 'MIT'],
     titlePre: "Device detection that's right ",
     titleAccent: 'in CSR and SSR',
     titlePost: '',
@@ -119,7 +119,7 @@ export const en: LandingStrings = {
       },
       {
         title: 'Proven in real browsers',
-        body: 'Beyond 85 unit tests, iPhone 15, iPad Pro, Galaxy S24, Galaxy Tab S9, and desktop Chrome and Safari are driven in real browsers to confirm the verdicts and zero errors.',
+        body: 'Beyond 98 unit tests, iPhone 15, iPad Pro, Galaxy S24, Galaxy Tab S9, and desktop Chrome and Safari are driven in real browsers to confirm the verdicts and zero errors.',
       },
     ],
   },
@@ -147,6 +147,10 @@ export const en: LandingStrings = {
       {
         name: 'useOS()',
         desc: "'ios' | 'android' | 'windows' | 'macos' | 'linux' | 'unknown'.",
+      },
+      {
+        name: 'useDevicePixelRatio()',
+        desc: 'The physical pixels per CSS pixel, for @2x assets and canvas scaling. Reactive, and 1 until hydration.',
       },
       {
         name: 'detectDevice(input?, options?)',

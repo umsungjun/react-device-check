@@ -6,7 +6,7 @@ export const ko: LandingStrings = {
     langHref: '/',
   },
   hero: {
-    badges: ['~1.5 kB min+brotli', '의존성 0개', 'React 17–19', 'MIT'],
+    badges: ['~1.6 kB min+brotli', '의존성 0개', 'React 17–19', 'MIT'],
     titlePre: 'CSR에서도, SSR에서도 ',
     titleAccent: '정확한 기기 판별',
     titlePost: '',
@@ -115,18 +115,18 @@ export const ko: LandingStrings = {
       },
       {
         title: '하이브리드 반응성',
-        body: '기기 종류와 OS는 페이지를 새로 열기 전까지 고정입니다. 반면 터치 여부와 화면 방향은 실시간으로 따라가서, 폴더블을 펼치거나 iPad에 키보드를 붙여도 값이 맞습니다.',
+        body: '기기 종류와 OS는 페이지를 새로 열기 전까지 고정입니다. 터치 여부와 화면 방향은 실시간으로 따라갑니다. 폴더블을 펼치거나 iPad에 키보드를 붙여도 값이 맞는 이유입니다.',
       },
       {
         title: '실브라우저 검증',
-        body: '단위 테스트 85개에 더해, iPhone 15와 iPad Pro, Galaxy S24, Galaxy Tab S9, 데스크톱 Chrome/Safari를 실제 브라우저로 띄워 판별 결과와 에러 0건을 확인합니다.',
+        body: '단위 테스트 98개에 더해, iPhone 15와 iPad Pro, Galaxy S24, Galaxy Tab S9, 데스크톱 Chrome/Safari를 실제 브라우저로 띄워 판별 결과와 에러 0건을 확인합니다.',
       },
     ],
   },
   compare: {
     overline: 'Comparison',
     title: 'react-device-detect는요?',
-    body: 'react-device-detect는 import하는 순간 값을 계산해 고정합니다. 그래서 서버 렌더링 환경에서 깨집니다. iPad는 데스크톱으로 잘못 잡고, 한번 정해진 값은 바뀌지 않습니다. 쓰지 않는 부분을 덜어낼 수 없어 ~13 kB를 언제나 통째로 내려보냅니다. 2023년 이후 유지보수가 멈췄고 파서 의존성은 AGPL로 바뀌었습니다. react-device-check는 지금의 플랫폼 현실에 맞춰 새로 설계한 MIT 대안입니다.',
+    body: 'react-device-detect는 import하는 순간 값을 계산해 고정합니다. 서버 렌더링 환경에서 깨지는 건 그 결과입니다. iPad는 데스크톱으로 잘못 잡고, 한번 정해진 값은 바뀌지 않습니다. 쓰지 않는 부분을 덜어낼 수 없어 ~13 kB를 언제나 통째로 내려보냅니다. 2023년 이후 유지보수가 멈췄고 파서 의존성은 AGPL로 바뀌었습니다. react-device-check는 지금의 플랫폼 현실에 맞춰 새로 설계한 MIT 대안입니다.',
   },
   api: {
     overline: 'API',
@@ -147,6 +147,10 @@ export const ko: LandingStrings = {
       {
         name: 'useOS()',
         desc: "'ios' | 'android' | 'windows' | 'macos' | 'linux' | 'unknown'.",
+      },
+      {
+        name: 'useDevicePixelRatio()',
+        desc: 'CSS 픽셀당 물리 픽셀 수. @2x 에셋 선택과 canvas 스케일에 씁니다. 반응형이고, hydration 전까지는 1입니다.',
       },
       {
         name: 'detectDevice(input?, options?)',

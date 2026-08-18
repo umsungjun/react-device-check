@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useSyncExternalStoreFallback } from '../compat';
 import {
   useDevice,
+  useDevicePixelRatio,
   useDeviceType,
   useIsDesktop,
   useIsMobile,
@@ -12,7 +13,11 @@ import {
 } from '../index';
 import { getServerSnapshot, getSnapshot, subscribe } from '../core/store';
 import { installMatchMedia } from './matchMediaMock';
-import { stubNavigatorFromFixture } from './helpers';
+import {
+  dprQuery,
+  stubDevicePixelRatio,
+  stubNavigatorFromFixture,
+} from './helpers';
 
 const TOUCH_QUERY = '(pointer: coarse)';
 const PORTRAIT_QUERY = '(orientation: portrait)';
@@ -33,6 +38,10 @@ const CHROME_ANDROID_PHONE = {
 function DeviceProbe() {
   const device = useDevice();
   return <div data-testid="device">{JSON.stringify(device)}</div>;
+}
+
+function DprProbe() {
+  return <div data-testid="dpr">{useDevicePixelRatio()}</div>;
 }
 
 function StaticProbe() {
@@ -143,6 +152,53 @@ describe('hooks', () => {
       stubNavigatorFromFixture(IPHONE);
       const { getByTestId } = render(<StaticProbe />);
       expect(readJSON(getByTestId('static')).type).toBe('mobile');
+    });
+  });
+
+  describe('useDevicePixelRatio', () => {
+    it('should return the current ratio', () => {
+      stubDevicePixelRatio(3);
+      const { getByTestId } = render(<DprProbe />);
+      expect(getByTestId('dpr').textContent).toBe('3');
+    });
+
+    it('should re-render with the new ratio when the display density changes', () => {
+      stubDevicePixelRatio(2);
+      const media = installMatchMedia();
+      const { getByTestId } = render(<DprProbe />);
+      expect(getByTestId('dpr').textContent).toBe('2');
+
+      // A window dragged onto a 1x monitor: stub the new ratio, then fire the query that described the old one.
+      stubDevicePixelRatio(1);
+      act(() => {
+        media.set(dprQuery(2), false);
+      });
+      expect(getByTestId('dpr').textContent).toBe('1');
+    });
+
+    it('should not affect the device snapshot', () => {
+      stubDevicePixelRatio(3);
+      stubNavigatorFromFixture(IPHONE);
+      const { getByTestId } = render(
+        <>
+          <DeviceProbe />
+          <DprProbe />
+        </>
+      );
+      expect(getByTestId('dpr').textContent).toBe('3');
+      expect(readJSON(getByTestId('device'))).not.toHaveProperty('dpr');
+    });
+
+    it('should not re-render in a loop (bounded render count)', () => {
+      stubDevicePixelRatio(2);
+      let renders = 0;
+      function CountingProbe() {
+        renders += 1;
+        useDevicePixelRatio();
+        return null;
+      }
+      render(<CountingProbe />);
+      expect(renders).toBeLessThanOrEqual(2);
     });
   });
 

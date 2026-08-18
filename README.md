@@ -8,7 +8,7 @@
 
 **Website / live demo**: [react-device-check-site.vercel.app](https://react-device-check-site.vercel.app)
 
-**A React hook that tells you whether your user is on a phone, tablet, or desktop, and which OS they run.** No dependencies, and ~1.5 kB (min+brotli) even if you use all of it. It works on React 17, 18, and 19, ships its own type definitions, and does not break in Next.js or anywhere else that builds HTML on the server first.
+**A React hook that tells you whether your user is on a phone, tablet, or desktop, and which OS they run.** No dependencies, and ~1.6 kB (min+brotli) even if you use all of it. It works on React 17, 18, and 19, ships its own type definitions, and does not break in Next.js or anywhere else that builds HTML on the server first.
 
 ## What this solves
 
@@ -126,6 +126,22 @@ useIsDesktop(): boolean
 
 These attach no media listeners at all. Import only these and the whole reactive store leaves the bundle.
 
+### `useDevicePixelRatio(): number`
+
+The number of physical pixels per CSS pixel: pick a `@2x`/`@3x` asset, scale a canvas backing store, or request map and chart tiles at the right resolution.
+
+```tsx
+import { useDevicePixelRatio } from 'react-device-check';
+
+function Hero() {
+  const dpr = useDevicePixelRatio();
+  // Fixed width/height, so swapping the source costs no layout shift.
+  return <img src={dpr >= 2 ? hero2x : hero1x} width={800} height={450} alt="" />;
+}
+```
+
+Reactive: the ratio moves on browser zoom, on a display scale change, and when the window is dragged between screens of different densities. Server render and hydration first paint both report `1`, so there is nothing to mismatch, and the real ratio arrives one render later. The store is separate from `useDevice()`, so importing this hook alone costs 0.6 kB and brings neither the detection engine nor the device listeners.
+
 ### `detectDevice(input?, options?)` (no React required)
 
 The pure engine behind the hooks. Every signal is injectable, so it runs on the server unchanged.
@@ -173,6 +189,7 @@ Because the server and the browser use the same value for that first paint, the 
 - Pure CSR apps (Vite, CRA) skip ①② and get correct values from the very first render.
 - For UI that must not guess on the first paint, check `isHydrated` and render a neutral placeholder.
 - **Use CSS media queries for layout and this hook for behavior**, meaning which SDK to load, which flow to start, where to redirect. Do that and CLS stays at zero no matter what the correcting render does.
+- `useDevicePixelRatio()` follows the same contract: `1` on the server and the first paint, the real ratio one render later.
 - The bundle carries a `'use client'` banner, so importing it from a React Server Component raises a clear boundary error instead of a cryptic invalid-hook error.
 
 ## How detection works
@@ -216,10 +233,13 @@ These are the cases where `react-device-check` answers wrongly or cannot know at
 - Chrome on Android with "Request desktop site" reports `desktop`/`linux`. The browser is deliberately pretending to be a Linux desktop, so there is nothing left to tell them apart by.
 - Foldables (Galaxy Fold/Flip) are `mobile` whether open or closed. Nothing reports the current fold state. Build screens that must react to unfolding with CSS media queries.
 - Deliberately altered UA strings win. Detection gives a consistent answer for the values it receives, but it cannot catch someone who is lying on purpose.
+- The server cannot know the pixel ratio either, so it always sends `1` and the browser corrects it after hydration. Unlike the device type there is no header to fall back on, because the UA string carries no display density. Chromium can negotiate one through Client Hints, but that is opt-in and Chromium only.
+- Browser zoom is indistinguishable from a genuinely denser screen. Both move `devicePixelRatio` and nothing separates them.
 
 **Not supported yet**
 
 - HarmonyOS NEXT reports `os: 'unknown'`. The `type` is correct. HarmonyOS is simply not in the v1 `os` list yet.
+- Safari before 16 has no `resolution` media query support, so the initial ratio is read correctly but never updates there. Ratios do not move on iOS anyway, so this only shows up on macOS Safari 15 when a window crosses displays.
 - React 17 with server rendering may log a hydration warning. React 17 lacks `useSyncExternalStore`, so the fallback in its place paints the browser's value from the very first render. React's own official replacement has the same limitation. React 18/19 are unaffected, and React 17 without server rendering is fine too.
 
 ## Local development
@@ -236,7 +256,7 @@ pnpm e2e            # Playwright device-matrix E2E against both examples
 
 ## Testing
 
-- 85 unit tests, including a fixture matrix of 48 real UA strings (frozen Chrome UA, iOS 26, iPad desktop mode, DeX, Firefox tablet, KakaoTalk webview, Fire TV, Opera Mini, HarmonyOS NEXT, and more).
+- 98 unit tests, including a fixture matrix of 48 real UA strings (frozen Chrome UA, iOS 26, iPad desktop mode, DeX, Firefox tablet, KakaoTalk webview, Fire TV, Opera Mini, HarmonyOS NEXT, and more).
 - Playwright E2E drives 6 device profiles on real Chromium and WebKit, checking the verdicts, the raw server HTML, and zero hydration errors.
 - CI runs React 17/18/19 compatibility legs, `@arethetypeswrong/cli`, and the size-limit budgets.
 
@@ -250,4 +270,4 @@ Issues and pull requests are welcome. Please run `pnpm lint && pnpm typecheck &&
 
 ---
 
-**Keywords:** react device detection hook, react-device-detect alternative, detect mobile tablet desktop react, ipad detection react, useIsMobile hook, SSR safe device detection, Next.js device detection, user agent client hints react, react device type hook, zero dependency device detect
+**Keywords:** react device detection hook, react-device-detect alternative, detect mobile tablet desktop react, ipad detection react, useIsMobile hook, SSR safe device detection, Next.js device detection, user agent client hints react, react device type hook, zero dependency device detect, device pixel ratio hook, retina detection react

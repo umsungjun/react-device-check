@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
+import { resetDprForTesting } from '../core/dpr';
 import { resetStaticInfoForTesting } from '../core/static';
 import { resetStoreForTesting } from '../core/store';
 
@@ -8,6 +9,7 @@ import { resetStoreForTesting } from '../core/store';
 afterEach(() => {
   cleanup();
   resetStoreForTesting();
+  resetDprForTesting();
   resetStaticInfoForTesting();
   vi.unstubAllGlobals();
 });
