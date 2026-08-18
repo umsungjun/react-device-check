@@ -4,7 +4,17 @@ import { renderToString } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { detectDevice } from '../core/detect';
 import { getNavigatorInput } from '../core/env';
-import { useDevice, useDeviceType, useIsMobile, useOS } from '../index';
+import {
+  useDevice,
+  useDevicePixelRatio,
+  useDeviceType,
+  useIsMobile,
+  useOS,
+} from '../index';
+
+function DprProbe() {
+  return <div>{JSON.stringify({ dpr: useDevicePixelRatio() })}</div>;
+}
 
 function DeviceProbe() {
   const device = useDevice();
@@ -61,6 +71,10 @@ describe('SSR (Node environment)', () => {
     expect(html).toContain('"isHydrated":false');
     expect(html).toContain('"isTouchPrimary":false');
     expect(html).toContain('"orientation":"landscape"');
+  });
+
+  it('should renderToString useDevicePixelRatio without touching window, with a ratio of 1', () => {
+    expect(decode(renderToString(<DprProbe />))).toContain('"dpr":1');
   });
 
   it('should renderToString static hooks without crashing, with server defaults', () => {

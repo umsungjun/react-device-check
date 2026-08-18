@@ -6,6 +6,7 @@ export {
   useIsDesktop,
 } from './useDeviceType';
 export { useOS } from './useOS';
+export { useDevicePixelRatio } from './useDevicePixelRatio';
 export { detectDevice } from './core/detect';
 export { getNavigatorInput } from './core/env';
 export type {
