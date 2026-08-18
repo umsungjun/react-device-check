@@ -10,6 +10,11 @@ interface Expectation {
   touch?: boolean;
 }
 
+// The ratio is whatever the emulated device reports, so it is read from the descriptor instead of being duplicated here. The matrix covers 1, 2, 2.5 and 3.
+const expectedDpr = (testInfo: {
+  project: { use: { deviceScaleFactor?: number } };
+}) => String(testInfo.project.use.deviceScaleFactor ?? 1);
+
 const EXPECTATIONS: Record<string, Expectation> = {
   iphone: { type: 'mobile', os: 'ios', touch: true },
   ipad: { type: 'tablet', os: 'ios', touch: true },
@@ -35,6 +40,7 @@ test.describe('CSR example (Vite)', () => {
         String(expected.touch)
       );
     }
+    await expect(page.getByTestId('dpr')).toHaveText(expectedDpr(testInfo));
     // Pure CSR: hydration flag is true immediately (no server involved).
     await expect(page.getByTestId('isHydrated')).toHaveText('true');
   });
@@ -50,6 +56,8 @@ test.describe('SSR example (Next.js)', () => {
     expect(html).toMatch(/data-testid="type"[^>]*>desktop</);
     expect(html).toMatch(/data-testid="os"[^>]*>unknown</);
     expect(html).toMatch(/data-testid="isHydrated"[^>]*>false</);
+    // The ratio is unknowable server-side, so the server always sends the CSS pixel baseline.
+    expect(html).toMatch(/data-testid="dpr"[^>]*>1</);
   });
 
   test('hydrates to the real device with zero hydration errors', async ({
@@ -73,8 +81,11 @@ test.describe('SSR example (Next.js)', () => {
       await expect(page.getByTestId('os')).toHaveText(expected.os);
     }
 
+    await expect(page.getByTestId('dpr')).toHaveText(expectedDpr(testInfo));
+
     // The first-paint capture proves what the server rendered.
     await expect(page.getByTestId('first-type')).toHaveText('desktop');
+    await expect(page.getByTestId('first-dpr')).toHaveText('1');
     await expect(page.getByTestId('first-isHydrated')).toHaveText('false');
 
     // React logs hydration mismatches via console.error, and there must be none.
@@ -109,5 +120,7 @@ test.describe('reactivity contract', () => {
 
     // Device identity is session-static by contract, so rotation must not change it.
     await expect(page.getByTestId('type')).toHaveText(expected.type);
+    // The ratio tracks display density, not viewport size, so resizing must not move it either.
+    await expect(page.getByTestId('dpr')).toHaveText(expectedDpr(testInfo));
   });
 });

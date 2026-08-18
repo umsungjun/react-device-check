@@ -1,8 +1,9 @@
 // Imports the library source directly for a fast edit-refresh loop.
-import { useDevice } from '../../src';
+import { useDevice, useDevicePixelRatio } from '../../src';
 
 export default function App() {
   const device = useDevice();
+  const dpr = useDevicePixelRatio();
 
   return (
     <main className="page">
@@ -49,9 +50,20 @@ export default function App() {
         </dl>
       </section>
 
+      <section className="card">
+        <h2>useDevicePixelRatio()</h2>
+        <dl>
+          <div className="row">
+            <dt>dpr</dt>
+            <dd data-testid="dpr">{dpr}</dd>
+          </div>
+        </dl>
+      </section>
+
       <p className="hint">
-        Tip: toggle the device emulation in your browser devtools and reload,
-        or rotate a real device, and orientation and isTouchPrimary update live.
+        Tip: toggle the device emulation in your browser devtools and reload, or
+        rotate a real device, and orientation and isTouchPrimary update live.
+        Zoom the browser in and out to move dpr.
       </p>
     </main>
   );
