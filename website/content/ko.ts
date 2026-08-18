@@ -6,7 +6,7 @@ export const ko: LandingStrings = {
     langHref: '/',
   },
   hero: {
-    badges: ['~1.5 kB min+brotli', '의존성 0개', 'React 17–19', 'MIT'],
+    badges: ['~1.6 kB min+brotli', '의존성 0개', 'React 17–19', 'MIT'],
     titlePre: 'CSR에서도, SSR에서도 ',
     titleAccent: '정확한 기기 판별',
     titlePost: '',
@@ -119,7 +119,7 @@ export const ko: LandingStrings = {
       },
       {
         title: '실브라우저 검증',
-        body: '단위 테스트 85개에 더해, iPhone 15와 iPad Pro, Galaxy S24, Galaxy Tab S9, 데스크톱 Chrome/Safari를 실제 브라우저로 띄워 판별 결과와 에러 0건을 확인합니다.',
+        body: '단위 테스트 98개에 더해, iPhone 15와 iPad Pro, Galaxy S24, Galaxy Tab S9, 데스크톱 Chrome/Safari를 실제 브라우저로 띄워 판별 결과와 에러 0건을 확인합니다.',
       },
     ],
   },
@@ -147,6 +147,10 @@ export const ko: LandingStrings = {
       {
         name: 'useOS()',
         desc: "'ios' | 'android' | 'windows' | 'macos' | 'linux' | 'unknown'.",
+      },
+      {
+        name: 'useDevicePixelRatio()',
+        desc: 'CSS 픽셀당 물리 픽셀 수. @2x 에셋 선택과 canvas 스케일에 씁니다. 반응형이고, hydration 전까지는 1입니다.',
       },
       {
         name: 'detectDevice(input?, options?)',

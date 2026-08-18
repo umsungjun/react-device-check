@@ -12,8 +12,8 @@ const TITLES: Record<Locale, string> = {
 };
 
 const DESCRIPTIONS: Record<Locale, string> = {
-  en: 'Detect mobile, tablet, or desktop and the OS in any React app with zero dependencies, ~1.5 kB, and no hydration errors in Next.js. iPad-as-Mac unmasking, Client Hints first, React 17–19.',
-  ko: '의존성 0개, ~1.5 kB, Next.js hydration 에러 없이 어떤 React 앱에서든 모바일·태블릿·데스크톱과 OS를 판별하세요. iPad 위장 해제, Client Hints 우선, React 17–19 지원.',
+  en: 'Detect mobile, tablet, or desktop and the OS in any React app with zero dependencies, ~1.6 kB, and no hydration errors in Next.js. iPad-as-Mac unmasking, Client Hints first, React 17–19.',
+  ko: '의존성 0개, ~1.6 kB, Next.js hydration 에러 없이 어떤 React 앱에서든 모바일·태블릿·데스크톱과 OS를 판별하세요. iPad 위장 해제, Client Hints 우선, React 17–19 지원.',
 };
 
 const PATHS: Record<Locale, string> = { en: '/', ko: '/ko' };
@@ -32,6 +32,7 @@ export const buildMetadata = (locale: Locale): Metadata => ({
     'is-tablet',
     'user-agent',
     'client-hints',
+    'device-pixel-ratio',
     'ssr',
     'nextjs',
     'hydration',

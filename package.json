@@ -139,6 +139,9 @@
     "responsive",
     "typescript",
     "zero-dependencies",
-    "tree-shakeable"
+    "tree-shakeable",
+    "device-pixel-ratio",
+    "dpr",
+    "retina"
   ]
 }

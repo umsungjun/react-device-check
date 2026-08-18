@@ -8,7 +8,7 @@
 
 **웹사이트 / 라이브 데모**: [react-device-check-site.vercel.app/ko](https://react-device-check-site.vercel.app/ko)
 
-**사용자가 폰인지 태블릿인지 데스크톱인지, 어떤 OS를 쓰는지 알려주는 React 훅입니다.** 의존성이 없고 전부 가져다 써도 ~1.5 kB(min+brotli)입니다. React 17, 18, 19에서 동작하고 타입 정의를 함께 배포하며, Next.js처럼 서버에서 HTML을 미리 만드는 환경에서도 에러가 나지 않습니다.
+**사용자가 폰인지 태블릿인지 데스크톱인지, 어떤 OS를 쓰는지 알려주는 React 훅입니다.** 의존성이 없고 전부 가져다 써도 ~1.6 kB(min+brotli)입니다. React 17, 18, 19에서 동작하고 타입 정의를 함께 배포하며, Next.js처럼 서버에서 HTML을 미리 만드는 환경에서도 에러가 나지 않습니다.
 
 ## 이런 문제를 풀어줍니다
 
@@ -126,6 +126,22 @@ useIsDesktop(): boolean
 
 미디어 리스너를 하나도 붙이지 않습니다. 이 훅들만 import하면 반응형 스토어 전체가 번들에서 빠집니다.
 
+### `useDevicePixelRatio(): number`
+
+CSS 픽셀 하나에 물리 픽셀이 몇 개 들어가는지 알려줍니다. `@2x`/`@3x` 에셋 선택, canvas 백킹 스토어 스케일, 지도·차트 타일 해상도 요청에 씁니다.
+
+```tsx
+import { useDevicePixelRatio } from 'react-device-check';
+
+function Hero() {
+  const dpr = useDevicePixelRatio();
+  // width/height를 고정해 두면 소스만 바뀌므로 레이아웃이 흔들리지 않습니다.
+  return <img src={dpr >= 2 ? hero2x : hero1x} width={800} height={450} alt="" />;
+}
+```
+
+반응형입니다. 브라우저 줌, 디스플레이 배율 변경, 밀도가 다른 화면으로 창을 옮길 때 값이 따라 움직입니다. 서버 렌더와 hydration 첫 페인트가 둘 다 `1`을 내므로 어긋날 값이 없고, 실제 비율은 그다음 렌더 한 번으로 채워집니다. 스토어가 `useDevice()`와 분리돼 있어서 이 훅만 import하면 0.6 kB이고, 판별 엔진도 기기 리스너도 딸려오지 않습니다.
+
 ### `detectDevice(input?, options?)` (React 불필요)
 
 훅 뒤에 있는 순수 엔진입니다. 모든 값을 주입할 수 있어 서버에서도 그대로 씁니다.
@@ -173,6 +189,7 @@ const result = detectDevice({ ...getNavigatorInput(), screen: undefined });
 - 순수 CSR 앱(Vite, CRA)은 ①②를 건너뛰고 첫 렌더부터 정확한 값을 받습니다.
 - 첫 페인트에서 추측하면 안 되는 UI는 `isHydrated`를 보고 중립 플레이스홀더를 렌더하세요.
 - **레이아웃은 CSS 미디어 쿼리로, 이 훅은 행동 분기용으로** 쓰는 편이 좋습니다. 어떤 SDK를 로드할지, 어떤 플로우를 시작할지, 어디로 리다이렉트할지 같은 것들입니다. 그러면 교정 렌더와 무관하게 CLS가 0으로 유지됩니다.
+- `useDevicePixelRatio()`도 같은 계약을 따릅니다. 서버와 첫 페인트에서 `1`, 실제 비율은 그다음 렌더 한 번으로 채워집니다.
 - 번들에 `'use client'` 배너가 들어 있어서, React Server Component에서 import하면 알 수 없는 훅 에러 대신 명확한 경계 에러가 납니다.
 
 ## 판별 원리
@@ -216,10 +233,13 @@ Mac을 자처하는 iPad가 여기서 걸러집니다. 진짜 Mac은 동시에 �
 - Chrome 안드로이드의 "데스크톱 사이트 요청"은 `desktop`/`linux`가 됩니다. 브라우저가 의도적으로 리눅스 데스크톱인 척하는 것이라 진짜와 구분할 방법이 없습니다.
 - 폴더블(갤럭시 폴드/플립)은 펼쳐도 접어도 `mobile`입니다. 지금 접혀 있는지 알려주는 값이 아예 없습니다. 펼침 상태에 맞춰야 하는 화면은 CSS 미디어 쿼리로 만드세요.
 - UA를 일부러 바꿔서 접속하는 것은 막지 못합니다. 받은 값에 일관된 답을 낼 뿐, 작정하고 속이는 상대를 가려내지는 못합니다.
+- 서버는 화면 밀도도 알 수 없습니다. 언제나 `1`을 보내고 브라우저가 넘겨받은 뒤 바로잡습니다. 기기 종류와 달리 대신 읽을 헤더조차 없는데, UA 문자열에 밀도가 담기지 않기 때문입니다. Chromium은 Client Hints로 협상해 받을 수 있지만 opt-in이고 Chromium 전용입니다.
+- 브라우저 줌과 진짜 고밀도 화면은 구분되지 않습니다. 둘 다 `devicePixelRatio`를 움직이고, 어느 쪽인지 가려낼 값이 없습니다.
 
 **아직 지원하지 않는 것**
 
 - HarmonyOS NEXT는 `os`가 `'unknown'`으로 나옵니다. `type`은 정확합니다. v1의 `os` 목록에 HarmonyOS를 아직 넣지 않았습니다.
+- Safari 16 미만은 `resolution` 미디어 쿼리를 지원하지 않아 초기값은 맞지만 갱신되지 않습니다. iOS에서는 비율이 어차피 움직이지 않으니, 창이 디스플레이를 넘나드는 macOS Safari 15에서만 드러납니다.
 - React 17에서 서버 렌더링을 쓰면 hydration 경고가 찍힐 수 있습니다. React 17에는 이 훅이 쓰는 `useSyncExternalStore`가 없어서, 대신 넣어둔 코드가 첫 화면부터 브라우저 값을 그려버립니다. React 공식 대체 구현도 똑같은 한계를 갖고 있습니다. React 18/19에서는 생기지 않고, React 17이어도 서버 렌더링을 쓰지 않으면 문제없습니다.
 
 ## 로컬 개발
@@ -236,7 +256,7 @@ pnpm e2e            # 두 예제에 대한 Playwright 기기 매트릭스 E2E
 
 ## 테스트
 
-- 단위 테스트 85개. 실제 UA 문자열 48개를 픽스처 매트릭스로 돌립니다(동결된 Chrome UA, iOS 26, iPad 데스크톱 모드, DeX, Firefox 태블릿, 카카오톡 웹뷰, Fire TV, Opera Mini, HarmonyOS NEXT 등).
+- 단위 테스트 98개. 실제 UA 문자열 48개를 픽스처 매트릭스로 돌립니다(동결된 Chrome UA, iOS 26, iPad 데스크톱 모드, DeX, Firefox 태블릿, 카카오톡 웹뷰, Fire TV, Opera Mini, HarmonyOS NEXT 등).
 - Playwright E2E는 기기 프로필 6개를 실제 Chromium/WebKit로 띄워 판별 결과와 서버 원본 HTML, hydration 에러 0건을 확인합니다.
 - CI는 React 17/18/19 호환 레그, `@arethetypeswrong/cli`, size-limit 예산을 실행합니다.
 
@@ -250,4 +270,4 @@ pnpm e2e            # 두 예제에 대한 Playwright 기기 매트릭스 E2E
 
 ---
 
-**Keywords:** react 기기 판별 훅, react-device-detect 대안, 모바일 태블릿 데스크톱 판별 react, 아이패드 판별 react, useIsMobile 훅, SSR 안전 기기 판별, Next.js 기기 판별, user agent client hints react
+**Keywords:** react 기기 판별 훅, react-device-detect 대안, 모바일 태블릿 데스크톱 판별 react, 아이패드 판별 react, useIsMobile 훅, SSR 안전 기기 판별, Next.js 기기 판별, user agent client hints react, 디바이스 픽셀 비율 훅, 레티나 판별 react
