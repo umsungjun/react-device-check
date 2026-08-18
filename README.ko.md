@@ -26,7 +26,7 @@ const { type, os, isMobile, isTablet, isDesktop } = useDevice();
 꺼내 쓰는 건 이렇게 간단합니다. 어려운 쪽은 저 값을 정확하게 만드는 일이고, 아래 셋이 대표적인 경우입니다.
 
 **iPad 사용자에게 데스크톱 화면이 나갑니다.**
-브라우저는 요청할 때마다 User-Agent(줄여서 UA) 문자열을 함께 보냅니다. 그런데 iPadOS 13부터 iPad는 이 문자열에 자신을 Mac이라고 적어 보냅니다. UA만 읽는 라이브러리는 여기에 그대로 속습니다.
+브라우저는 요청할 때마다 User-Agent(줄여서 UA) 문자열을 함께 보냅니다. iPadOS 13부터 iPad는 이 문자열에 자신을 Mac이라고 적습니다. UA만 읽는 라이브러리는 그대로 속습니다.
 
 → UA와 함께 `maxTouchPoints`를 봅니다. 진짜 Mac은 0을 보고하고 iPad는 5를 보고하므로, "Mac인데 손가락 다섯 개가 닿는다"면 iPad입니다.
 
@@ -36,7 +36,7 @@ Chrome이 UA에서 모델명을 지운 뒤로 모든 안드로이드 기기가 `
 → Chrome 계열 브라우저는 UA 말고도 Client Hints라는 별도 정보를 제공합니다. 이쪽은 모델명 삭제와 무관하게 폰인지 아닌지를 알려줍니다. 이 값이 없는 브라우저에서는 UA에 `Mobile` 표시가 있는지로 갈라내는데, 구글이 안내하는 공식 방법입니다.
 
 **Next.js 콘솔에 hydration 에러가 쌓입니다.**
-서버에서 HTML을 미리 만들 때는 접속자가 어떤 기기인지 알 수 없습니다. 반면 브라우저는 압니다. 그래서 서버가 보낸 HTML과 브라우저가 처음 그린 화면이 어긋나고, React가 이를 에러로 보고합니다. (hydration은 서버가 만들어 둔 HTML을 브라우저에서 React가 이어받는 과정입니다.)
+서버에서 HTML을 미리 만들 때는 접속자가 어떤 기기인지 알 수 없습니다. 브라우저는 압니다. 이 비대칭 때문에 서버가 보낸 HTML과 브라우저가 처음 그린 화면이 어긋나고, React가 이를 에러로 보고합니다. (hydration은 서버가 만들어 둔 HTML을 브라우저에서 React가 이어받는 과정입니다.)
 
 → 첫 화면에서는 서버와 브라우저가 똑같이 `desktop` / `unknown`을 씁니다. 어긋날 값 자체가 없으니 에러도 없습니다. 진짜 기기 정보는 그 직후 렌더 한 번으로 채워집니다.
 
@@ -44,7 +44,7 @@ Chrome이 UA에서 모델명을 지운 뒤로 모든 안드로이드 기기가 `
 
 ## react-device-detect와 비교
 
-[react-device-detect](https://www.npmjs.com/package/react-device-detect)는 import 시점에 UA를 읽어 상수를 만듭니다. 그래서 SSR에서 크래시하거나 mismatch를 냅니다. iPad는 데스크톱으로 잘못 잡습니다. 한번 계산한 값은 갱신되지 않고, 쓰지 않는 코드를 덜어낼 수 없어 ~13 kB(gzip)을 언제나 통째로 내려보냅니다. 2023년 이후로 유지보수가 멈췄고, 파서 의존성인 ua-parser-js v2가 AGPL로 바뀌면서 현대화 길도 막혔습니다.
+[react-device-detect](https://www.npmjs.com/package/react-device-detect)는 import 시점에 UA를 읽어 상수를 만듭니다. SSR에서 크래시하거나 mismatch를 내는 이유가 여기 있습니다. iPad는 데스크톱으로 잘못 잡습니다. 한번 계산한 값은 갱신되지 않고, 쓰지 않는 코드를 덜어낼 수 없어 ~13 kB(gzip)을 언제나 통째로 내려보냅니다. 2023년 이후로 유지보수가 멈췄고, 파서 의존성인 ua-parser-js v2가 AGPL로 바뀌면서 현대화 길도 막혔습니다.
 
 Client Hints와 UA 파싱을 모두 갖춘 라이브러리는 사실상 없습니다. `react-device-check`는 지금의 플랫폼 현실에 맞춰 새로 설계한 MIT 대안입니다.
 
@@ -176,7 +176,7 @@ const result = detectDevice({ ...getNavigatorInput(), screen: undefined });
 
 ## SSR 동작 (Next.js)
 
-서버는 기기를 알 수 없습니다. 그래서 이런 순서로 동작합니다.
+서버는 기기를 알 수 없으니 이런 순서로 동작합니다.
 
 ```
 ① 서버 렌더        → 고정된 기본값: { type: 'desktop', os: 'unknown', isHydrated: false }
@@ -188,7 +188,7 @@ const result = detectDevice({ ...getNavigatorInput(), screen: undefined });
 
 - 순수 CSR 앱(Vite, CRA)은 ①②를 건너뛰고 첫 렌더부터 정확한 값을 받습니다.
 - 첫 페인트에서 추측하면 안 되는 UI는 `isHydrated`를 보고 중립 플레이스홀더를 렌더하세요.
-- **레이아웃은 CSS 미디어 쿼리로, 이 훅은 행동 분기용으로** 쓰는 편이 좋습니다. 어떤 SDK를 로드할지, 어떤 플로우를 시작할지, 어디로 리다이렉트할지 같은 것들입니다. 그러면 교정 렌더와 무관하게 CLS가 0으로 유지됩니다.
+- 레이아웃은 CSS 미디어 쿼리로, 이 훅은 행동 분기용으로 쓰는 편이 좋습니다. 어떤 SDK를 로드할지, 어떤 플로우를 시작할지, 어디로 리다이렉트할지 같은 것들입니다. 교정 렌더가 기하를 건드리지 않으니 CLS는 0으로 유지됩니다.
 - `useDevicePixelRatio()`도 같은 계약을 따릅니다. 서버와 첫 페인트에서 `1`, 실제 비율은 그다음 렌더 한 번으로 채워집니다.
 - 번들에 `'use client'` 배너가 들어 있어서, React Server Component에서 import하면 알 수 없는 훅 에러 대신 명확한 경계 에러가 납니다.
 
@@ -198,7 +198,7 @@ const result = detectDevice({ ...getNavigatorInput(), screen: undefined });
 
 **1. User-Agent Client Hints** (`navigator.userAgentData`, Chrome 계열만 제공)
 
-UA가 한 덩어리 문자열인 것과 달리, 이쪽은 "모바일인가", "어떤 OS인가"가 항목별로 따로 옵니다. Chrome이 UA에서 모델명을 지운 것과도 무관합니다. 그래서 이 값이 있으면 가장 먼저 믿습니다.
+UA가 한 덩어리 문자열인 것과 달리, 이쪽은 "모바일인가", "어떤 OS인가"가 항목별로 따로 옵니다. Chrome이 UA에서 모델명을 지운 것과도 무관합니다. 이 값이 있으면 가장 먼저 믿는 이유입니다.
 
 안드로이드에서 폰과 태블릿은 `mobile` 항목으로 갈립니다. 안드로이드인데 `mobile`이 `false`면 태블릿이라는 것이 구글이 안내하는 규칙입니다.
 
@@ -208,7 +208,7 @@ Client Hints를 주지 않는 브라우저에서만 씁니다. 문자열에 `iPh
 
 **3. `maxTouchPoints` 교차검증**
 
-Mac을 자처하는 iPad가 여기서 걸러집니다. 진짜 Mac은 동시에 인식하는 터치 지점이 0개인데 iPad는 5개입니다. 그래서 "Mac이라는데 터치 지점이 1개보다 많다"면 데스크톱 UA를 쓰는 Apple 터치 기기입니다.
+Mac을 자처하는 iPad가 여기서 걸러집니다. 진짜 Mac은 동시에 인식하는 터치 지점이 0개인데 iPad는 5개입니다. "Mac이라는데 터치 지점이 1개보다 많다"면 데스크톱 UA를 쓰는 Apple 터치 기기라는 뜻입니다.
 
 그게 iPad인지 데스크톱 모드를 켠 iPhone인지는 화면의 짧은 쪽 길이로 나눕니다. 가장 큰 iPhone이 440px 언저리, 가장 작은 iPad가 744px이라 두 범위가 겹치지 않습니다.
 

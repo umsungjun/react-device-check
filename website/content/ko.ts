@@ -115,7 +115,7 @@ export const ko: LandingStrings = {
       },
       {
         title: '하이브리드 반응성',
-        body: '기기 종류와 OS는 페이지를 새로 열기 전까지 고정입니다. 반면 터치 여부와 화면 방향은 실시간으로 따라가서, 폴더블을 펼치거나 iPad에 키보드를 붙여도 값이 맞습니다.',
+        body: '기기 종류와 OS는 페이지를 새로 열기 전까지 고정입니다. 터치 여부와 화면 방향은 실시간으로 따라갑니다. 폴더블을 펼치거나 iPad에 키보드를 붙여도 값이 맞는 이유입니다.',
       },
       {
         title: '실브라우저 검증',
@@ -126,7 +126,7 @@ export const ko: LandingStrings = {
   compare: {
     overline: 'Comparison',
     title: 'react-device-detect는요?',
-    body: 'react-device-detect는 import하는 순간 값을 계산해 고정합니다. 그래서 서버 렌더링 환경에서 깨집니다. iPad는 데스크톱으로 잘못 잡고, 한번 정해진 값은 바뀌지 않습니다. 쓰지 않는 부분을 덜어낼 수 없어 ~13 kB를 언제나 통째로 내려보냅니다. 2023년 이후 유지보수가 멈췄고 파서 의존성은 AGPL로 바뀌었습니다. react-device-check는 지금의 플랫폼 현실에 맞춰 새로 설계한 MIT 대안입니다.',
+    body: 'react-device-detect는 import하는 순간 값을 계산해 고정합니다. 서버 렌더링 환경에서 깨지는 건 그 결과입니다. iPad는 데스크톱으로 잘못 잡고, 한번 정해진 값은 바뀌지 않습니다. 쓰지 않는 부분을 덜어낼 수 없어 ~13 kB를 언제나 통째로 내려보냅니다. 2023년 이후 유지보수가 멈췄고 파서 의존성은 AGPL로 바뀌었습니다. react-device-check는 지금의 플랫폼 현실에 맞춰 새로 설계한 MIT 대안입니다.',
   },
   api: {
     overline: 'API',
