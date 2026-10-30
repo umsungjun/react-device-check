@@ -18,6 +18,12 @@ updates:
     schedule:
       interval: weekly
 
+  # The docs site is deployed, so it needs security updates as much as the package does.
+  - package-ecosystem: npm
+    directory: '/website'
+    schedule:
+      interval: weekly
+
   - package-ecosystem: github-actions
     directory: '/'
     schedule:
