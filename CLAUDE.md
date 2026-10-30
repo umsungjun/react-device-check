@@ -97,4 +97,4 @@ React is the only external (peer dependency). Bundle budgets: everything ≤ 2 k
 
 ### Package manager
 
-This project uses `pnpm` and Node 20.x (see `.nvmrc`). Use `pnpm` for all install/run commands.
+This project uses `pnpm` and Node 24.x (see `.nvmrc`). Use `pnpm` for all install/run commands.
