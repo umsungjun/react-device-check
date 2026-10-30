@@ -9,13 +9,13 @@
   },
   "dependencies": {
     "next": "^15.5.28",
-    "react": "^19.2.0",
+    "react": "^19.3.1",
     "react-device-check": "^0.1.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
-    "@types/react": "^19.2.7",
+    "@types/react": "^19.3.0",
     "@types/react-dom": "^19.2.3",
     "typescript": "^5.9.3"
   },
