@@ -266,7 +266,7 @@ Issues and pull requests are welcome. Please run `pnpm lint && pnpm typecheck &&
 
 ## License
 
-[MIT](LICENSE) © [umsungjun](https://github.com/umsungjun)
+[MIT](LICENSE) © [umsungjun](https://umsungjun.com/en)
 
 ---
 
