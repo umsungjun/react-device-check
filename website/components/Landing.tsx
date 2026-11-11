@@ -218,6 +218,18 @@ export default function Landing({ locale, strings: s }: LandingProps) {
             <a href={NPM_URL} target="_blank" rel="noreferrer noopener">
               npm
             </a>
+            {/* No noreferrer, so umsungjun.com analytics can see visits from this site */}
+            <a
+              href={
+                locale === 'en'
+                  ? 'https://umsungjun.com/en'
+                  : 'https://umsungjun.com'
+              }
+              target="_blank"
+              rel="noopener"
+            >
+              umsungjun.com
+            </a>
             <a
               href={s.header.langHref}
               hrefLang={locale === 'en' ? 'ko' : 'en'}

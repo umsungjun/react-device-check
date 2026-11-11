@@ -266,7 +266,7 @@ pnpm e2e            # 두 예제에 대한 Playwright 기기 매트릭스 E2E
 
 ## 라이선스
 
-[MIT](LICENSE) © [umsungjun](https://github.com/umsungjun)
+[MIT](LICENSE) © [umsungjun](https://umsungjun.com)
 
 ---
 
